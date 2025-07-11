@@ -1,76 +1,115 @@
 import { useEffect, useRef, useState } from "react"
-import { cn } from "@/lib/utils"
 
 interface AnswerMatrixProps {
-  answers: (1 | 0 | null)[]
-  setAnswers: (a: (1 | 0 | null)[]) => void
+  answers: (0 | 1 | null)[]
+  setAnswers: (a: (0 | 1 | null)[]) => void
+  genderSelected: boolean
 }
 
-export default function AnswerMatrix({ answers, setAnswers }: AnswerMatrixProps) {
+export default function AnswerMatrix({ answers, setAnswers, genderSelected }: AnswerMatrixProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
+  const [rows] = useState(10) // stała liczba wierszy
 
-  const updateAnswer = (index: number, value: 1 | 0 | null) => {
-    const updated = [...answers]
-    updated[index] = value
-    setAnswers(updated)
-  }
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "ArrowRight") {
-      updateAnswer(activeIndex, 0)
-      setActiveIndex((prev) => Math.min(prev + 1, 566))
-    } else if (e.key === "ArrowLeft") {
-      updateAnswer(activeIndex, 1)
-      setActiveIndex((prev) => Math.min(prev + 1, 566))
-    } else if (e.key === "ArrowDown") {
-      updateAnswer(activeIndex, null)
-      setActiveIndex((prev) => Math.min(prev + 1, 566))
-    } else if (e.key === "ArrowUp") {
-      setActiveIndex((prev) => Math.max(prev - 1, 0))
+  // Obsługa klawiatury
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (!genderSelected) return
+      if (e.key === "ArrowLeft") {
+        update(activeIndex, 1)
+        setActiveIndex((i) => Math.min(i + 1, 566))
+      } else if (e.key === "ArrowRight") {
+        update(activeIndex, 0)
+        setActiveIndex((i) => Math.min(i + 1, 566))
+      } else if (e.key === "ArrowDown") {
+        setActiveIndex((i) => Math.min(i + 1, 566))
+      } else if (e.key === "ArrowUp") {
+        setActiveIndex((i) => Math.max(i - 1, 0))
+      }
     }
-  }
+
+    window.addEventListener("keydown", handleKey)
+    return () => window.removeEventListener("keydown", handleKey)
+  }, [activeIndex, genderSelected])
 
   useEffect(() => {
-    const listener = (e: KeyboardEvent) => handleKeyDown(e)
-    window.addEventListener("keydown", listener)
-    return () => window.removeEventListener("keydown", listener)
-  }, [activeIndex, answers])
+    const el = document.getElementById(`q-${activeIndex}`)
+    el?.scrollIntoView({ block: "nearest", inline: "nearest" })
+  }, [activeIndex])
+
+  const update = (index: number, value: 0 | 1) => {
+    if (!genderSelected) return
+    const copy = [...answers]
+    copy[index] = value
+    setAnswers(copy)
+  }
+
+  const blocks: JSX.Element[] = []
+
+  for (let col = 0; col < Math.ceil(answers.length / rows); col++) {
+    const columnItems = []
+
+    for (let row = 0; row < rows; row++) {
+      const i = col * rows + row
+      if (i >= answers.length) break
+      const val = answers[i]
+      const isActive = i === activeIndex
+
+      columnItems.push(
+        <div
+          key={i}
+          id={`q-${i}`}
+          className={`flex items-center justify-between w-[180px] px-3 py-1 rounded-md border-2 text-sm
+            ${isActive ? "ring-2 ring-accent border-accent bg-muted" : "border-muted bg-background"}
+            ${!genderSelected ? "opacity-50 pointer-events-none" : ""}
+          `}
+        >
+          <span className="font-medium text-muted-foreground">{i + 1}.</span>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              onClick={() => update(i, 1)}
+              className={`px-3 py-1 text-xs rounded-md border-2 font-semibold shadow-sm transition-all
+                ${val === 1
+                  ? "bg-lime-600 text-white border-lime-700"
+                  : "bg-white text-foreground border-gray-400 hover:bg-gray-100"}
+              `}
+            >
+              TAK
+            </button>
+            <button
+              type="button"
+              onClick={() => update(i, 0)}
+              className={`px-3 py-1 text-xs rounded-md border-2 font-semibold shadow-sm transition-all
+                ${val === 0
+                  ? "bg-lime-600 text-white border-lime-700"
+                  : "bg-white text-foreground border-gray-400 hover:bg-gray-100"}
+              `}
+            >
+              NIE
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    blocks.push(
+      <div key={`col-${col}`} className="flex flex-col gap-1">
+        {columnItems}
+      </div>
+    )
+  }
 
   return (
     <div
       ref={containerRef}
-      className="grid gap-2 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+      className="flex gap-3 px-4 py-2 overflow-x-auto"
+      style={{
+        marginTop: "100px",
+        height: "calc(100vh - 140px)",
+      }}
     >
-      {answers.map((value, index) => (
-        <div
-          key={index}
-          className={cn(
-            "flex items-center gap-2 p-2 rounded-lg border border-border",
-            index === activeIndex && "bg-muted"
-          )}
-        >
-          <span className="w-6 text-sm text-right">{index + 1}.</span>
-          <button
-            onClick={() => updateAnswer(index, 1)}
-            className={cn(
-              "px-2 py-1 rounded text-sm border",
-              value === 1 ? "bg-blue-500 text-white" : "bg-background"
-            )}
-          >
-            Tak
-          </button>
-          <button
-            onClick={() => updateAnswer(index, 0)}
-            className={cn(
-              "px-2 py-1 rounded text-sm border",
-              value === 0 ? "bg-blue-500 text-white" : "bg-background"
-            )}
-          >
-            Nie
-          </button>
-        </div>
-      ))}
+      {blocks}
     </div>
   )
 }

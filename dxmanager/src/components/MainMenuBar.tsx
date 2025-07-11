@@ -1,18 +1,16 @@
 import {
-  Home,
   ListChecks,
   PanelLeftClose,
   PanelLeftOpen,
   TestTube2,
 } from "lucide-react"
 import { useState } from "react"
-import { NavLink, useLocation } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
 
 export default function MainMenuBar() {
   const [collapsed, setCollapsed] = useState(false)
   const [testsOpen, setTestsOpen] = useState(true)
-  const location = useLocation()
 
   const menuItems = [
     {
@@ -26,7 +24,7 @@ export default function MainMenuBar() {
     {
       label: "MMPI-2",
       icon: TestTube2,
-      to: "/mmpi2",
+      to: "/tests/mmpi2",
     },
   ]
 
@@ -51,25 +49,19 @@ export default function MainMenuBar() {
         <ul className="px-2 space-y-1">
           {menuItems.map(({ label, icon: Icon, to }) => (
             <li key={to}>
-              <NavLink
+              <Link
                 to={to}
-                className={({ isActive }) =>
-                  cn(
-                    "flex items-center gap-3 px-3 py-2 rounded text-sm hover:bg-muted transition-colors",
-                    isActive && "bg-muted text-brand-accent"
-                  )
-                }
+                className="flex items-center gap-3 px-3 py-2 rounded text-sm hover:bg-muted hover:text-foreground transition-colors"
               >
                 <Icon size={20} />
                 {!collapsed && <span>{label}</span>}
-              </NavLink>
+              </Link>
             </li>
           ))}
 
-          {/* Sekcja Testy */}
           <li>
             <button
-              className="flex items-center w-full gap-3 px-3 py-2 text-left text-sm hover:bg-muted rounded transition-colors"
+              className="flex items-center w-full gap-3 px-3 py-2 text-left text-sm hover:bg-muted hover:text-foreground rounded transition-colors"
               onClick={() => setTestsOpen(!testsOpen)}
             >
               <TestTube2 size={20} />
@@ -79,18 +71,13 @@ export default function MainMenuBar() {
               <ul className="ml-4 mt-1 space-y-1">
                 {testItems.map(({ label, icon: Icon, to }) => (
                   <li key={to}>
-                    <NavLink
+                    <Link
                       to={to}
-                      className={({ isActive }) =>
-                        cn(
-                          "flex items-center gap-3 px-3 py-1 rounded text-sm hover:bg-muted transition-colors",
-                          isActive && "bg-muted text-brand-accent"
-                        )
-                      }
+                      className="flex items-center gap-3 px-3 py-1 rounded text-sm hover:bg-muted hover:text-foreground transition-colors"
                     >
                       <Icon size={18} />
                       {!collapsed && <span>{label}</span>}
-                    </NavLink>
+                    </Link>
                   </li>
                 ))}
               </ul>
