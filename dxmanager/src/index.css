@@ -66,3 +66,8 @@
     @apply bg-background text-foreground;
   }
 }
+body {
+  background-color: #f5f5f5;
+  color: #2c3639;
+  font-family: system-ui, sans-serif;
+}

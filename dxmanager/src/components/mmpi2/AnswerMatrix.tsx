@@ -1,115 +1,55 @@
-import { useEffect, useRef, useState } from "react"
+import React from "react"
+import { Answer } from "@/logic/types"
 
-interface AnswerMatrixProps {
-  answers: (0 | 1 | null)[]
-  setAnswers: (a: (0 | 1 | null)[]) => void
-  genderSelected: boolean
+export interface AnswerMatrixProps {
+  answers: Answer[]
+  onAnswer: (index: number, value: Answer) => void
+  currentIndex: number
+  onFocus: React.Dispatch<React.SetStateAction<number>>
 }
 
-export default function AnswerMatrix({ answers, setAnswers, genderSelected }: AnswerMatrixProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [rows] = useState(10) // stała liczba wierszy
-
-  // Obsługa klawiatury
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (!genderSelected) return
-      if (e.key === "ArrowLeft") {
-        update(activeIndex, 1)
-        setActiveIndex((i) => Math.min(i + 1, 566))
-      } else if (e.key === "ArrowRight") {
-        update(activeIndex, 0)
-        setActiveIndex((i) => Math.min(i + 1, 566))
-      } else if (e.key === "ArrowDown") {
-        setActiveIndex((i) => Math.min(i + 1, 566))
-      } else if (e.key === "ArrowUp") {
-        setActiveIndex((i) => Math.max(i - 1, 0))
-      }
-    }
-
-    window.addEventListener("keydown", handleKey)
-    return () => window.removeEventListener("keydown", handleKey)
-  }, [activeIndex, genderSelected])
-
-  useEffect(() => {
-    const el = document.getElementById(`q-${activeIndex}`)
-    el?.scrollIntoView({ block: "nearest", inline: "nearest" })
-  }, [activeIndex])
-
-  const update = (index: number, value: 0 | 1) => {
-    if (!genderSelected) return
-    const copy = [...answers]
-    copy[index] = value
-    setAnswers(copy)
-  }
-
-  const blocks: JSX.Element[] = []
-
-  for (let col = 0; col < Math.ceil(answers.length / rows); col++) {
-    const columnItems = []
-
-    for (let row = 0; row < rows; row++) {
-      const i = col * rows + row
-      if (i >= answers.length) break
-      const val = answers[i]
-      const isActive = i === activeIndex
-
-      columnItems.push(
+const AnswerMatrix: React.FC<AnswerMatrixProps> = ({ answers, onAnswer, currentIndex, onFocus }) => {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
+      {answers.map((answer, index) => (
         <div
-          key={i}
-          id={`q-${i}`}
-          className={`flex items-center justify-between w-[180px] px-3 py-1 rounded-md border-2 text-sm
-            ${isActive ? "ring-2 ring-accent border-accent bg-muted" : "border-muted bg-background"}
-            ${!genderSelected ? "opacity-50 pointer-events-none" : ""}
-          `}
+          key={index}
+          onClick={() => onFocus(index)}
+          className={`flex items-center justify-between rounded-md overflow-hidden border text-sm shadow-sm transition-all
+            ${currentIndex === index ? "border-[#a27b5c] ring-2 ring-[#a27b5c] bg-[#fff8f3]" : "border-gray-300 bg-white hover:border-[#ccc]"}`}
         >
-          <span className="font-medium text-muted-foreground">{i + 1}.</span>
-          <div className="flex gap-1">
+          <span className="px-2 font-mono text-xs w-8 text-right select-none">{index + 1}.</span>
+
+          <div className="flex w-full divide-x divide-gray-300">
             <button
-              type="button"
-              onClick={() => update(i, 1)}
-              className={`px-3 py-1 text-xs rounded-md border-2 font-semibold shadow-sm transition-all
-                ${val === 1
-                  ? "bg-lime-600 text-white border-lime-700"
-                  : "bg-white text-foreground border-gray-400 hover:bg-gray-100"}
-              `}
+              onClick={(e) => {
+                e.stopPropagation()
+                onAnswer(index, "T")
+              }}
+              className={`w-1/2 px-2 py-1 text-xs font-semibold transition-colors
+                ${answer === "T"
+                  ? "bg-[#a27b5c] text-white"
+                  : "bg-white text-[#2c3639] hover:bg-gray-100"}`}
             >
-              TAK
+              Tak
             </button>
             <button
-              type="button"
-              onClick={() => update(i, 0)}
-              className={`px-3 py-1 text-xs rounded-md border-2 font-semibold shadow-sm transition-all
-                ${val === 0
-                  ? "bg-lime-600 text-white border-lime-700"
-                  : "bg-white text-foreground border-gray-400 hover:bg-gray-100"}
-              `}
+              onClick={(e) => {
+                e.stopPropagation()
+                onAnswer(index, "F")
+              }}
+              className={`w-1/2 px-2 py-1 text-xs font-semibold transition-colors
+                ${answer === "F"
+                  ? "bg-[#a27b5c] text-white"
+                  : "bg-white text-[#2c3639] hover:bg-gray-100"}`}
             >
-              NIE
+              Nie
             </button>
           </div>
         </div>
-      )
-    }
-
-    blocks.push(
-      <div key={`col-${col}`} className="flex flex-col gap-1">
-        {columnItems}
-      </div>
-    )
-  }
-
-  return (
-    <div
-      ref={containerRef}
-      className="flex gap-3 px-4 py-2 overflow-x-auto"
-      style={{
-        marginTop: "100px",
-        height: "calc(100vh - 140px)",
-      }}
-    >
-      {blocks}
+      ))}
     </div>
   )
 }
+
+export default AnswerMatrix

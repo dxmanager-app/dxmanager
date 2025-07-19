@@ -14,8 +14,8 @@ export default function GenderToggle({ value, onChange }: GenderToggleProps) {
         onClick={() => onChange("female")}
         className={`px-4 py-1 text-sm font-medium rounded-md border-2 shadow-sm transition-all
           ${value === "female"
-            ? "bg-lime-600 text-white border-lime-700"
-            : "bg-background text-foreground border-gray-400 hover:bg-accent"}
+            ? "bg-[#8aa7a9] text-white border-[#799293]"
+            : "bg-[#f7f5f1] text-[#333] border-[#bbb] hover:bg-[#e2e0db]"}
         `}
       >
         K
@@ -25,8 +25,8 @@ export default function GenderToggle({ value, onChange }: GenderToggleProps) {
         onClick={() => onChange("male")}
         className={`px-4 py-1 text-sm font-medium rounded-md border-2 shadow-sm transition-all
           ${value === "male"
-            ? "bg-lime-600 text-white border-lime-700"
-            : "bg-background text-foreground border-gray-400 hover:bg-accent"}
+            ? "bg-[#8aa7a9] text-white border-[#799293]"
+            : "bg-[#f7f5f1] text-[#333] border-[#bbb] hover:bg-[#e2e0db]"}
         `}
       >
         M

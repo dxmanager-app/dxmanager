@@ -1,4 +1,4 @@
-import { Answer, Gender, ScaleScore, Mmpi2Scores } from "../types"
+import { Answer, Gender, ScaleScore, Mmpi2Scores } from "./types"
 import { mainScales } from "./criteria/main-scales"
 import { calculateRawScale } from "./calculators/raw"
 import { calculateTenScales } from "./calculators/ten"
