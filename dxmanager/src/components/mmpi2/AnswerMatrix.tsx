@@ -1,5 +1,13 @@
-import React from "react"
+// src/components/mmpi2/AnswerMatrix.tsx
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react"
 import { Answer } from "@/logic/types"
+import { Button } from "@/components/ui/button"
 
 export interface AnswerMatrixProps {
   answers: Answer[]
@@ -8,46 +16,152 @@ export interface AnswerMatrixProps {
   onFocus: React.Dispatch<React.SetStateAction<number>>
 }
 
-const AnswerMatrix: React.FC<AnswerMatrixProps> = ({ answers, onAnswer, currentIndex, onFocus }) => {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2">
-      {answers.map((answer, index) => (
-        <div
-          key={index}
-          onClick={() => onFocus(index)}
-          className={`flex items-center justify-between rounded-md overflow-hidden border text-sm shadow-sm transition-all
-            ${currentIndex === index ? "border-[#a27b5c] ring-2 ring-[#a27b5c] bg-[#fff8f3]" : "border-gray-300 bg-white hover:border-[#ccc]"}`}
-        >
-          <span className="px-2 font-mono text-xs w-8 text-right select-none">{index + 1}.</span>
+/**
+ * MMPI‑2 – szybkie wprowadzanie wyników
+ * Kolumny po 15 pytań (układ pionowy) – zero scrolla, pełna obsługa klawiatury i myszy.
+ * Przyciski TAK/NIE korzystają z komponentu <Button> shadcn/ui.
+ */
 
-          <div className="flex w-full divide-x divide-gray-300">
-            <button
+const QUESTIONS_PER_COLUMN = 15
+const COLUMN_MIN_WIDTH = 180 // px
+
+export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
+  answers,
+  onAnswer,
+  currentIndex,
+  onFocus,
+}) => {
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const [columns, setColumns] = useState(1)
+
+  /* 🔄 Re‑calculate number of columns on resize */
+  const recalcColumns = useCallback(() => {
+    const width = containerRef.current?.clientWidth ?? 0
+    const count = Math.max(1, Math.floor(width / COLUMN_MIN_WIDTH))
+    setColumns(count)
+  }, [])
+
+  useLayoutEffect(() => {
+    recalcColumns()
+    const ro = new ResizeObserver(recalcColumns)
+    if (containerRef.current) ro.observe(containerRef.current)
+    return () => ro.disconnect()
+  }, [recalcColumns])
+
+  /* 🔢 Pagination */
+  const questionsPerPage = columns * QUESTIONS_PER_COLUMN
+  const currentPage = Math.floor(currentIndex / questionsPerPage)
+  const start = currentPage * questionsPerPage
+  const end = Math.min(start + questionsPerPage, answers.length)
+  const pageIndexes = Array.from({ length: end - start }, (_, i) => start + i)
+
+  /* ⌨️ Keyboard */
+  const handleKey = useCallback(
+    (e: KeyboardEvent) => {
+      if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key))
+        return
+      e.preventDefault()
+      switch (e.key) {
+        case "ArrowLeft": // TAK
+          onAnswer(currentIndex, "T")
+          break
+        case "ArrowRight": // NIE
+          onAnswer(currentIndex, "F")
+          break
+        case "ArrowDown": // kolejny
+          onFocus((idx) => Math.min(idx + 1, answers.length - 1))
+          break
+        case "ArrowUp": // poprzedni
+          onFocus((idx) => Math.max(idx - 1, 0))
+          break
+      }
+    },
+    [answers.length, currentIndex, onAnswer, onFocus]
+  )
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKey)
+    return () => window.removeEventListener("keydown", handleKey)
+  }, [handleKey])
+
+  /* 🔍 Focus */
+  useEffect(() => {
+    const activeEl = document.querySelector(
+      `[data-question='${currentIndex}']`
+    ) as HTMLElement | null
+    activeEl?.focus({ preventScroll: true })
+  }, [currentIndex, start])
+
+  /* 💄 Style helpers – tylko klasy util, resztę bierze shadcn Button */
+  const yesClasses = (idx: number) =>
+    `h-7 w-9 text-xs leading-none transition-colors ${
+      answers[idx] === "T"
+        ? "bg-primary text-primary-foreground border-primary"
+        : "border-border text-foreground dark:text-muted-foreground"
+    }`
+  const noClasses = (idx: number) =>
+    `h-7 w-9 text-xs leading-none transition-colors ${
+      answers[idx] === "F"
+        ? "bg-primary text-primary-foreground border-primary"
+        : "border-border text-foreground dark:text-muted-foreground"
+    }`
+
+  /* --- RENDER --- */
+  return (
+    <div
+      ref={containerRef}
+      className="grid gap-y-1 gap-x-3"
+      style={{
+        gridTemplateColumns: `repeat(${columns}, minmax(${COLUMN_MIN_WIDTH}px, 1fr))`,
+        gridAutoFlow: "column",
+      }}
+    >
+      {pageIndexes.map((idx) => {
+        const col = Math.floor((idx - start) / QUESTIONS_PER_COLUMN)
+        const row = (idx - start) % QUESTIONS_PER_COLUMN
+        return (
+          <div
+            key={idx}
+            data-question={idx}
+            style={{ gridColumn: col + 1, gridRow: row + 1 }}
+            className={`flex items-center gap-2 px-1 py-0.5 ${
+              idx === currentIndex ? "ring-2 ring-inset ring-primary" : ""
+            }`}
+            tabIndex={0}
+            onClick={() => onFocus(idx)}
+          >
+            {/* numer pytania */}
+            <span className="font-semibold tabular-nums w-9 text-right">
+              {idx + 1}
+            </span>
+            {/* przyciski TAK / NIE – shadcn Button */}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className={yesClasses(idx)}
               onClick={(e) => {
                 e.stopPropagation()
-                onAnswer(index, "T")
+                onAnswer(idx, "T")
               }}
-              className={`w-1/2 px-2 py-1 text-xs font-semibold transition-colors
-                ${answer === "T"
-                  ? "bg-[#a27b5c] text-white"
-                  : "bg-white text-[#2c3639] hover:bg-gray-100"}`}
             >
               Tak
-            </button>
-            <button
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className={noClasses(idx)}
               onClick={(e) => {
                 e.stopPropagation()
-                onAnswer(index, "F")
+                onAnswer(idx, "F")
               }}
-              className={`w-1/2 px-2 py-1 text-xs font-semibold transition-colors
-                ${answer === "F"
-                  ? "bg-[#a27b5c] text-white"
-                  : "bg-white text-[#2c3639] hover:bg-gray-100"}`}
             >
               Nie
-            </button>
+            </Button>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
