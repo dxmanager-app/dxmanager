@@ -1,22 +1,71 @@
-import { useParams, Link } from "react-router-dom"
+// src/views/TestIntro.tsx
+import { Link, useParams } from "react-router-dom"
+import { Button } from "@/components/ui/button"
 
+/**
+ * Ekran wstępny (/tests/:testId).
+ * • Dłuższa instrukcja nawigacji (jak poprzednio),
+ * • Przycisk „Rozpocznij” z obramowaniem w jasnym motywie
+ *   i wypełnieniem w ciemnym — zawsze kontrastowy.
+ */
 export default function TestIntro() {
-  const { testId } = useParams()
-
-  if (testId !== "mmpi2") {
-    return <div>Nieznany test: {testId}</div>
-  }
+  const { testId = "mmpi2" } = useParams()
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">MMPI-2</h1>
-      <p className="mb-6">Formularz do szybkiego wprowadzania wyników testu MMPI-2.</p>
-      <Link
-        to={`/tests/${testId}/input`}
-        className="inline-block bg-brand-accent text-white px-4 py-2 rounded hover:bg-brand-accent/80"
+    <section className="flex h-full flex-col items-center justify-center gap-8 bg-background px-4 text-foreground">
+      {/* Nagłówek */}
+      <h1 className="text-3xl font-semibold capitalize">
+        {testId} — wprowadzanie wyników
+      </h1>
+
+      {/* Instrukcja */}
+      <div className="max-w-prose space-y-4 text-sm text-muted-foreground">
+        <p>
+          Ten ekran służy do szybkiego przepisania odpowiedzi z papierowego
+          arkusza. Widoczna będzie tylko część pytań — reszta pojawi się
+          automatycznie, gdy przejdziesz dalej.
+        </p>
+
+        <p className="font-medium">Sterowanie klawiaturą:</p>
+        <ul className="list-disc space-y-1 pl-5">
+          <li>
+            <kbd className="kbd">←</kbd> — <b>TAK</b> + następne pytanie
+          </li>
+          <li>
+            <kbd className="kbd">→</kbd> — <b>NIE</b> + następne pytanie
+          </li>
+          <li>
+            <kbd className="kbd">↓</kbd> — pomiń i dalej
+          </li>
+          <li>
+            <kbd className="kbd">↑</kbd> — wróć do poprzedniego
+          </li>
+        </ul>
+
+        <p>
+          Możesz też używać myszy — kliknij <b>TAK</b> lub <b>NIE</b>, aby
+          zaznaczyć odpowiedź.
+        </p>
+      </div>
+
+      {/* Przycisk start — zawsze kontrastowy */}
+      <Button
+        asChild
+        size="lg"
+        variant="outline"                                   /* obrys w jasnym */
+        className="dark:bg-primary dark:text-primary-foreground
+                   dark:hover:bg-primary/90 shadow hover:shadow-md"
       >
-        Rozpocznij test
-      </Link>
-    </div>
+        <Link to={`/tests/${testId}/input`}>Rozpocznij</Link>
+      </Button>
+    </section>
   )
 }
+
+/* Jeśli helper .kbd nie został jeszcze dodany, wrzuć raz w index.css:
+@layer components {
+  .kbd {
+    @apply inline-flex items-center justify-center rounded border px-1 text-xs font-mono;
+  }
+}
+*/

@@ -34,6 +34,15 @@ export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [columns, setColumns] = useState(1)
 
+  const beep = useRef(new Audio("/sounds/beep-02.wav"))
+  const milestone = useRef(new Audio("/sounds/beep-01a.wav"))
+
+  const playBeep = (idx: number) => {
+    const sound = (idx + 1) % 15 === 0 ? milestone.current : beep.current
+    sound.currentTime = 0
+    sound.play().catch(() => {})
+  }
+
   /* 🔄 Re‑calculate number of columns on resize */
   const recalcColumns = useCallback(() => {
     const width = containerRef.current?.clientWidth ?? 0
@@ -62,16 +71,18 @@ export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
         return
       e.preventDefault()
       switch (e.key) {
-        case "ArrowLeft": // TAK
+        case "ArrowLeft":
           onAnswer(currentIndex, "T")
+          playBeep(currentIndex)
           break
-        case "ArrowRight": // NIE
+        case "ArrowRight":
           onAnswer(currentIndex, "F")
+          playBeep(currentIndex)
           break
-        case "ArrowDown": // kolejny
+        case "ArrowDown":
           onFocus((idx) => Math.min(idx + 1, answers.length - 1))
           break
-        case "ArrowUp": // poprzedni
+        case "ArrowUp":
           onFocus((idx) => Math.max(idx - 1, 0))
           break
       }
@@ -110,10 +121,11 @@ export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
   return (
     <div
       ref={containerRef}
-      className="grid gap-y-1 gap-x-3"
+      className="grid gap-y-1 gap-x-3 h-full"
       style={{
         gridTemplateColumns: `repeat(${columns}, minmax(${COLUMN_MIN_WIDTH}px, 1fr))`,
         gridAutoFlow: "column",
+        gridTemplateRows: `repeat(${QUESTIONS_PER_COLUMN}, minmax(0, 1fr))`,
       }}
     >
       {pageIndexes.map((idx) => {
@@ -143,6 +155,7 @@ export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
               onClick={(e) => {
                 e.stopPropagation()
                 onAnswer(idx, "T")
+                playBeep(idx)
               }}
             >
               Tak
@@ -155,6 +168,7 @@ export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
               onClick={(e) => {
                 e.stopPropagation()
                 onAnswer(idx, "F")
+                playBeep(idx)
               }}
             >
               Nie

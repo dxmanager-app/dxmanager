@@ -1,103 +1,127 @@
 // src/views/mmpi2/Mmpi2Results.tsx
-
-import { useParams } from "react-router-dom"
 import { useState } from "react"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { scaleHierarchy } from "@/logic/mmpi2/scale-hierarchy"
+import { saveResult } from "@/lib/storage"
+import { Answer } from "@/logic/types"
 import { scaleLabels } from "@/logic/mmpi2/scaleLabels"
 
 export default function Mmpi2Results() {
-  const { testId } = useParams()
-  const stored = localStorage.getItem("mmpi2-scores")
-  const scores = stored ? (JSON.parse(stored) as Record<string, { raw: number; t?: number; k?: number }>) : null
-  const [mode, setMode] = useState<"t" | "k" | "raw">("t")
+  /* ─── routing ─── */
+  const { testId = "mmpi2" } = useParams()
+  const [q] = useSearchParams()
+  const fromStorage = Boolean(q.get("id"))
+  const nav = useNavigate()
 
-  if (!scores || Object.keys(scores).length === 0) {
+  /* ─── dane z localStorage ─── */
+  const scores = JSON.parse(
+    localStorage.getItem("mmpi2-scores") || "{}"
+  ) as Record<string, { raw: number; t?: number; k?: number }>
+
+  const answers: Answer[] = JSON.parse(
+    localStorage.getItem("mmpi2-answers") || "[]"
+  )
+  const gender = (localStorage.getItem("mmpi2-gender") ||
+    "") as "M" | "K" | ""
+
+  if (!Object.keys(scores).length) {
     return (
-      <div className="p-4 text-center">
-        <p>Brak wyników do wyświetlenia dla testu: {testId}</p>
-      </div>
+      <p className="p-4 text-center">
+        Brak wyników do wyświetlenia dla testu: {testId}
+      </p>
     )
   }
 
-  const getScore = (s: { raw: number; t?: number; k?: number }) => {
-    if (mode === "t" && s.t !== undefined) return s.t
-    if (mode === "k" && s.k !== undefined) return s.k
-    return s.raw
+  /* ─── tryb RAW / T / K ─── */
+  const [mode, setMode] = useState<"raw" | "t" | "k">("t")
+
+  const Tab = ({
+    id,
+    label,
+  }: {
+    id: "raw" | "t" | "k"
+    label: string
+  }) => (
+    <button
+      onClick={() => setMode(id)}
+      className={`rounded-md px-3 py-1 text-sm transition-colors ${
+        mode === id
+          ? "bg-primary/10 text-primary"
+          : "bg-muted text-foreground dark:text-muted-foreground"
+      }`}
+    >
+      {label}
+    </button>
+  )
+
+  /* ─── helper getScore ─── */
+  const getScore = (key: string): number | string => {
+    let rec = scores[key]
+
+    /* alias Mf-m / Mf-f */
+    if (!rec && key === "Mf") {
+      const alt = gender === "M" ? "Mf-m" : "Mf-f"
+      rec = scores[alt]
+    }
+
+    if (!rec) return "—"
+    if (mode === "t" && rec.t !== undefined) return rec.t
+    if (mode === "k" && rec.k !== undefined) return rec.k
+    return rec.raw
   }
 
   const renderGroup = (title: string, keys: string[]) => (
-    <div className="flex flex-col gap-1">
-      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mt-6 mb-2">{title}</h3>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-2">
-        {keys.map((key) => {
-          const s = scores[key]
-          if (!s) return null
-          return (
-            <div
-              key={key}
-              title={scaleLabels[key]?.pl || scaleLabels[key]?.en || key}
-              className="flex flex-col items-center justify-center text-sm text-gray-900 bg-white border rounded shadow-sm p-1"
-            >
-              <div className="text-[11px] text-muted-foreground leading-none">{key}</div>
-              <div className="font-mono text-[13px] leading-none">{getScore(s)}</div>
-            </div>
-          )
-        })}
+    <div key={title} className="flex flex-col gap-1">
+      <h3 className="mt-4 text-sm font-medium">{title}</h3>
+      <div className="grid grid-cols-4 gap-x-3 text-sm">
+        {keys.map((k) => (
+          <span key={k} title={scaleLabels[k]?.pl ?? k}>
+            {k}: <b>{getScore(k)}</b>
+          </span>
+        ))}
       </div>
     </div>
   )
 
+  /* ─── zapis ─── */
+  const canSave = !fromStorage && Boolean(gender) && Object.keys(scores).length
+
+  const handleSave = () => {
+    if (!canSave || !gender) return
+    saveResult({ testId, gender, answers, scores })
+    nav("/results")
+  }
+
+  /* ─── JSX ─── */
   return (
-    <div className="p-4">
-      <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
-        <h1 className="text-xl font-semibold">Wyniki testu: {testId}</h1>
-        <div className="flex gap-2">
-          <button
-            className={`px-2 py-1 rounded border text-sm ${mode === "t" ? "bg-blue-500 text-white" : "bg-white"}`}
-            onClick={() => setMode("t")}
-          >
-            Skala tenowa (T)
-          </button>
-          <button
-            className={`px-2 py-1 rounded border text-sm ${mode === "k" ? "bg-blue-500 text-white" : "bg-white"}`}
-            onClick={() => setMode("k")}
-          >
-            Skala kontrolna (K)
-          </button>
-          <button
-            className={`px-2 py-1 rounded border text-sm ${mode === "raw" ? "bg-blue-500 text-white" : "bg-white"}`}
-            onClick={() => setMode("raw")}
-          >
-            Surowe wyniki
-          </button>
-        </div>
+    <section className="flex flex-col gap-4 p-4">
+      {/* zakładki */}
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium">Wartości:</span>
+        <Tab id="t" label="Tenowe" />
+        <Tab id="k" label="K-skoryg." />
+        <Tab id="raw" label="Surowe" />
       </div>
 
-      {renderGroup("VRIN & TRIN", ["VRIN", "TRIN"])}
-      {renderGroup("Skale kontrolne i kliniczne", [
-        "L", "F", "Fb", "Fp", "K", "S", "Hs", "D", "Hy", "Pd", "Mf", "Pa", "Pt", "Sc", "Ma", "Si"
-      ])}
-      {renderGroup("Skale Harris-Lingoesa", [
-        "D1", "D2", "D3", "D4", "D5",
-        "Hy1", "Hy2", "Hy3", "Hy4", "Hy5",
-        "Pd1", "Pd2", "Pd3", "Pd4", "Pd5",
-        "Pa1", "Pa2", "Pa3",
-        "Sc1", "Sc2", "Sc3", "Sc4", "Sc5", "Sc6",
-        "Ma1", "Ma2", "Ma3", "Ma4"
-      ])}
-      {renderGroup("Podskale Si", ["Si1", "Si2", "Si3"])}
-      {renderGroup("Skale treściowe", [
-        "ANG", "ANX", "ASP", "BIZ", "CYN", "DEP", "FAM", "FRS", "HEA", "LSE", "OBS", "SOD", "TPA", "TRT", "WRK"
-      ])}
-      {renderGroup("Podskale treściowe", [
-        "ANG1", "ANG2", "ASP1", "ASP2", "BIZ1", "BIZ2", "CYN1", "CYN2", "DEP1", "DEP2", "DEP3",
-        "DEP4", "FAM1", "FAM2", "FRS1", "FRS2", "HEA1", "HEA2", "HEA3", "LSE1", "LSE2",
-        "SOD1", "SOD2", "TPA1", "TPA2", "TRT1", "TRT2"
-      ])}
-      {renderGroup("Skale dodatkowe – kliniczne", ["A", "R", "Es", "Do", "Re", "Mt", "PK", "MDS"])}
-      {renderGroup("Skale dodatkowe – inne", ["Ho", "O-H", "MAC-R", "AAS", "APS", "GM", "GF"])}
-      {renderGroup("Zrestrukturyzowane skale kliniczne", [
-        "RCd", "RC1", "RC2", "RC3", "RC4", "RC6", "RC7", "RC8", "RC9"
-      ])}
-    </div>
+      {/* wszystkie grupy skal z scaleHierarchy */}
+      {Object.entries(scaleHierarchy).map(([grp, keys]) =>
+        renderGroup(grp, keys as string[])
+      )}
+
+      {/* przycisk zapisu */}
+      {!fromStorage && (
+        <div className="mt-6 flex justify-end">
+          <Button
+            onClick={handleSave}
+            disabled={!canSave}
+            className="px-6"
+            variant={canSave ? "default" : "secondary"}
+          >
+            Zapisz wyniki
+          </Button>
+        </div>
+      )}
+    </section>
   )
 }

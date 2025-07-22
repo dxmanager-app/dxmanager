@@ -1,16 +1,26 @@
-import { useParams } from "react-router-dom"
+// src/views/TestResultView.tsx
+import { useSearchParams, useParams } from "react-router-dom"
+import { getResult } from "@/lib/storage"
 import Mmpi2Results from "@/views/mmpi2/Mmpi2Results"
 
 export default function TestResultView() {
   const { testId } = useParams()
+  const [params] = useSearchParams()
+  const id = params.get("id")
 
-  if (testId === "mmpi2") {
-    return <Mmpi2Results />
+  // jeśli brak id → renderuj wyniki „na żywo”
+  if (!id) {
+    return testId === "mmpi2" ? <Mmpi2Results /> : <p>Brak widoku…</p>
   }
 
-  return (
-    <div className="p-4 text-center">
-      <p>Brak dedykowanego widoku dla testu: {testId}</p>
-    </div>
-  )
+  const res = getResult(id)
+  if (!res) return <p className="p-4">Nie znaleziono wyniku.</p>
+
+  // wczytujemy do localStorage tych samych kluczy,
+  // żeby Mmpi2Results mogło go użyć bez refaktoru
+  localStorage.setItem("mmpi2-scores", JSON.stringify(res.scores))
+  localStorage.setItem("mmpi2-answers", JSON.stringify(res.answers))
+  localStorage.setItem("mmpi2-gender", res.gender)
+
+  return testId === "mmpi2" ? <Mmpi2Results /> : <p>Brak widoku…</p>
 }

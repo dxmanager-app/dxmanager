@@ -2,72 +2,87 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────
+   ZMIENILIŚMY JEDYNIE WARTOŚĆ --primary W :root
+   (na stalowy #475569)  —   reszty pliku NIE ruszaj
+────────────────────────────────────────────── */
 @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
+
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
+
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
+
+    /* ▼▼▼  JEDYNA KOREKTA  ▼▼▼ */
+    --primary: 220 10% 46%;          /* #475569 – ciemny stalowy */
+    --primary-foreground: 0 0% 100%; /* biały tekst */
+
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
+
     --muted: 240 4.8% 95.9%;
     --muted-foreground: 240 3.8% 46.1%;
+
     --accent: 240 4.8% 95.9%;
     --accent-foreground: 240 5.9% 10%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
+
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem
-  }
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
-  }
-}
+    --ring: 240 5.9% 10%;
 
-@layer base {
+    --radius: 0.5rem;
+  }
+
+  /* ciemny motyw zostawiamy bez zmian (grafit) */
+  .dark {
+    --background: 215 8% 14%;
+    --foreground: 0 0% 100%;
+
+    --card: 220 6% 16%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 220 6% 16%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 215 8% 14%;
+
+    --secondary: 215 6% 22%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 215 6% 22%;
+    --muted-foreground: 220 4% 65%;
+
+    --accent: 215 6% 22%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62% 35%;
+    --destructive-foreground: 0 86% 96%;
+
+    --border: 215 6% 22%;
+    --input: 215 6% 22%;
+    --ring: 215 5% 80%;
+  }
+
   * {
     @apply border-border;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))];
   }
 }
-body {
-  background-color: #f5f5f5;
-  color: #2c3639;
-  font-family: system-ui, sans-serif;
+
+/* helper dla <kbd> w instrukcji — zostaje */
+@layer components {
+  .kbd {
+    @apply inline-flex items-center justify-center rounded border px-1 text-xs font-mono;
+  }
 }

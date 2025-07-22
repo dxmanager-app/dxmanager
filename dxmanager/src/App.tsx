@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import MainMenuBar from "@/components/MainMenuBar"
+import MainSidebar from "@/components/MainSidebar"
 import HomePage from "@/views/Home"
 import TestResultsList from "@/views/TestResultsList"
 
@@ -11,7 +11,7 @@ export default function App() {
   return (
     <Router>
       <div className="flex h-screen">
-        <MainMenuBar />
+        <MainSidebar />
         <main className="flex-1 overflow-y-auto bg-background text-foreground p-6">
           <Routes>
             <Route path="/" element={<HomePage />} />
