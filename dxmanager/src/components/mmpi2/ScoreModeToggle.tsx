@@ -1,9 +1,11 @@
+// src/components/mmpi2/ScoreModeToggle.tsx
+
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { ScoreMode } from "@/logic/mmpi2/types"
+import { Mode } from "@/logic/mmpi2/types"
 
 interface ScoreModeToggleProps {
-  mode: ScoreMode
-  onChange: (value: ScoreMode) => void
+  mode: Mode
+  onChange: (value: Mode) => void
 }
 
 export default function ScoreModeToggle({ mode, onChange }: ScoreModeToggleProps) {
@@ -12,12 +14,12 @@ export default function ScoreModeToggle({ mode, onChange }: ScoreModeToggleProps
       type="single"
       value={mode}
       onValueChange={(val: string) => {
-        if (val === "t" || val === "k" || val === "raw") onChange(val as ScoreMode)
+        if (val === "ten" || val === "k" || val === "raw") onChange(val as Mode)
       }}
     >
-      <ToggleGroupItem value="t">T</ToggleGroupItem>
+      <ToggleGroupItem value="ten">T</ToggleGroupItem>
       <ToggleGroupItem value="k">K</ToggleGroupItem>
       <ToggleGroupItem value="raw">Raw</ToggleGroupItem>
     </ToggleGroup>
   )
-}
+} 

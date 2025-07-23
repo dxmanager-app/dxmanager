@@ -1,11 +1,16 @@
 // src/views/TestResultsList.tsx
 import { Link, useNavigate } from "react-router-dom"
-import { getResults, deleteResult } from "@/lib/storage"
+import { getResults, deleteResult, SavedResult } from "@/lib/storage"
 import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
 
 export default function TestResultsList() {
   const navigate = useNavigate()
-  const results = getResults().reverse() // najnowsze na górze
+  const [results, setResults] = useState<SavedResult[]>([])
+
+  useEffect(() => {
+    getResults().then((res) => setResults(res.reverse()))
+  }, [])
 
   if (results.length === 0) {
     return (
@@ -54,4 +59,4 @@ export default function TestResultsList() {
       ))}
     </section>
   )
-}
+} 

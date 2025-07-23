@@ -1,15 +1,16 @@
-import { Gender, Mmpi2Scores, ScoreMode } from "@/logic/mmpi2/types"
+// src/components/mmpi2/ScoreSummary.tsx
+
+import { Gender, Mmpi2Scores } from "@/logic/mmpi2/types"
 import { calculateScores } from "@/logic/mmpi2/calculate"
-import { Card } from "@/components/ui/card"
 
 interface ScoreSummaryProps {
   answers: (1 | 0 | null)[]
   gender: Gender
-  mode: ScoreMode
 }
 
-export default function ScoreSummary({ answers, gender, mode }: ScoreSummaryProps) {
-  const scores: Mmpi2Scores = calculateScores(answers, gender)
+export default function ScoreSummary({ answers, gender }: ScoreSummaryProps) {
+  const mappedAnswers = answers.map((a) => (a === 1 ? "T" : a === 0 ? "F" : null))
+  const scores: Mmpi2Scores = calculateScores(mappedAnswers, gender)
 
   const scaleGroups: Record<string, string[]> = {
     "Skale kontrolne": ["VRIN", "TRIN", "F", "Fb", "F-K", "L", "K"],
@@ -20,7 +21,7 @@ export default function ScoreSummary({ answers, gender, mode }: ScoreSummaryProp
   return (
     <div className="space-y-6">
       {Object.entries(scaleGroups).map(([groupName, scaleKeys]) => (
-        <Card key={groupName} className="p-4">
+        <div key={groupName} className="p-4 border rounded-md shadow-sm bg-white dark:bg-muted">
           <h3 className="font-semibold mb-2">{groupName}</h3>
           <table className="w-full text-sm border-collapse">
             <thead>
@@ -46,7 +47,7 @@ export default function ScoreSummary({ answers, gender, mode }: ScoreSummaryProp
               })}
             </tbody>
           </table>
-        </Card>
+        </div>
       ))}
     </div>
   )

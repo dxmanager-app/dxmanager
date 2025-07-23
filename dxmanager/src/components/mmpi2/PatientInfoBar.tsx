@@ -4,13 +4,13 @@ import { AlertTriangle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Props {
-  onGenderSelect: (g: "M" | "K" | null) => void
+  onGenderSelect: (g: "M" | "F" | null) => void
 }
 
 /** Pasek danych pacjenta – „Płeć” jest wymagane */
 export default function PatientInfoBar({ onGenderSelect }: Props) {
   // ⬇️  DOMYŚLNIE brak wyboru — puste pole
-  const [gender, setGender] = useState<"M" | "K" | "">("")
+  const [gender, setGender] = useState<"M" | "F" | "">("")
 
   return (
     <section className="mb-4 rounded-xl bg-muted/50 p-3 lg:p-4 shadow-sm">
@@ -30,7 +30,7 @@ export default function PatientInfoBar({ onGenderSelect }: Props) {
             required
             value={gender}
             onChange={(e) => {
-              const val = e.target.value as "M" | "K" | ""
+              const val = e.target.value as "M" | "F" | ""
               setGender(val)
 
               // zapis / czyszczenie localStorage
@@ -45,7 +45,7 @@ export default function PatientInfoBar({ onGenderSelect }: Props) {
           >
             <option value="">– wybierz –</option>
             <option value="M">Mężczyzna</option>
-            <option value="K">Kobieta</option>
+            <option value="F">Kobieta</option>
           </select>
 
           {!gender && (

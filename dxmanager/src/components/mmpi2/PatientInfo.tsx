@@ -1,3 +1,5 @@
+// src/components/mmpi2/PatientInfo.tsx
+
 import { Gender } from "@/logic/types"
 
 interface PatientInfoProps {
@@ -20,18 +22,18 @@ export default function PatientInfo({ gender, setGender }: PatientInfoProps) {
         <label className="text-sm text-muted-foreground">Płeć</label>
         <div className="flex gap-2">
           <button
-            onClick={() => setGender("female")}
+            onClick={() => setGender("F")}
             className={`px-3 py-1 text-sm rounded-md border-2 transition
-              ${gender === "female"
+              ${gender === "F"
                 ? "bg-blue-700 text-white border-blue-800"
                 : "bg-white border-gray-300 hover:bg-blue-50"}`}
           >
             K
           </button>
           <button
-            onClick={() => setGender("male")}
+            onClick={() => setGender("M")}
             className={`px-3 py-1 text-sm rounded-md border-2 transition
-              ${gender === "male"
+              ${gender === "M"
                 ? "bg-blue-700 text-white border-blue-800"
                 : "bg-white border-gray-300 hover:bg-blue-50"}`}
           >

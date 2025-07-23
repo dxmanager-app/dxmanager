@@ -34,13 +34,14 @@ export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [columns, setColumns] = useState(1)
 
-  const beep = useRef(new Audio("/sounds/beep-02.wav"))
-  const milestone = useRef(new Audio("/sounds/beep-01a.wav"))
-
-  const playBeep = (idx: number) => {
-    const sound = (idx + 1) % 15 === 0 ? milestone.current : beep.current
-    sound.currentTime = 0
-    sound.play().catch(() => {})
+  const playBeep = (idx: number, nextAnswer: Answer) => {
+    if (answers[idx] === nextAnswer) return
+    const next = idx + 1
+    const soundId = next % 15 === 0 ? "milestone" : "beep"
+    const element = document.getElementById(soundId) as HTMLAudioElement | null
+    if (!element?.src) return
+    const freshAudio = new Audio(element.src)
+    freshAudio.play().catch(() => {})
   }
 
   /* 🔄 Re‑calculate number of columns on resize */
@@ -73,11 +74,11 @@ export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
       switch (e.key) {
         case "ArrowLeft":
           onAnswer(currentIndex, "T")
-          playBeep(currentIndex)
+          playBeep(currentIndex, "T")
           break
         case "ArrowRight":
           onAnswer(currentIndex, "F")
-          playBeep(currentIndex)
+          playBeep(currentIndex, "F")
           break
         case "ArrowDown":
           onFocus((idx) => Math.min(idx + 1, answers.length - 1))
@@ -87,7 +88,7 @@ export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
           break
       }
     },
-    [answers.length, currentIndex, onAnswer, onFocus]
+    [answers, currentIndex, onAnswer, onFocus]
   )
 
   useEffect(() => {
@@ -155,7 +156,7 @@ export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
               onClick={(e) => {
                 e.stopPropagation()
                 onAnswer(idx, "T")
-                playBeep(idx)
+                playBeep(idx, "T")
               }}
             >
               Tak
@@ -168,7 +169,7 @@ export const AnswerMatrix: React.FC<AnswerMatrixProps> = ({
               onClick={(e) => {
                 e.stopPropagation()
                 onAnswer(idx, "F")
-                playBeep(idx)
+                playBeep(idx, "F")
               }}
             >
               Nie

@@ -1,29 +1,35 @@
 // src/views/mmpi2/Mmpi2Results.tsx
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { scaleHierarchy } from "@/logic/mmpi2/scale-hierarchy"
-import { saveResult } from "@/lib/storage"
+import { getResults, saveResult } from "@/lib/storage"
 import { Answer } from "@/logic/types"
 import { scaleLabels } from "@/logic/mmpi2/scaleLabels"
 
 export default function Mmpi2Results() {
-  /* ─── routing ─── */
   const { testId = "mmpi2" } = useParams()
   const [q] = useSearchParams()
   const fromStorage = Boolean(q.get("id"))
   const nav = useNavigate()
 
-  /* ─── dane z localStorage ─── */
-  const scores = JSON.parse(
-    localStorage.getItem("mmpi2-scores") || "{}"
-  ) as Record<string, { raw: number; t?: number; k?: number }>
+  const [gender, setGender] = useState<"M" | "K" | "">("")
+  const [answers, setAnswers] = useState<Answer[]>([])
+  const [scores, setScores] = useState<Record<string, any>>({})
+  const [mode, setMode] = useState<"raw" | "t" | "k">("t")
 
-  const answers: Answer[] = JSON.parse(
-    localStorage.getItem("mmpi2-answers") || "[]"
-  )
-  const gender = (localStorage.getItem("mmpi2-gender") ||
-    "") as "M" | "K" | ""
+  useEffect(() => {
+    async function load() {
+      const results = await getResults()
+      const filtered = results.filter((r) => r.testId === testId)
+      const last = filtered.length > 0 ? filtered[filtered.length - 1] : null
+      if (!last) return
+      setGender(last.gender)
+      setAnswers(last.answers)
+      setScores(last.scores)
+    }
+    load()
+  }, [testId])
 
   if (!Object.keys(scores).length) {
     return (
@@ -33,16 +39,7 @@ export default function Mmpi2Results() {
     )
   }
 
-  /* ─── tryb RAW / T / K ─── */
-  const [mode, setMode] = useState<"raw" | "t" | "k">("t")
-
-  const Tab = ({
-    id,
-    label,
-  }: {
-    id: "raw" | "t" | "k"
-    label: string
-  }) => (
+  const Tab = ({ id, label }: { id: "raw" | "t" | "k"; label: string }) => (
     <button
       onClick={() => setMode(id)}
       className={`rounded-md px-3 py-1 text-sm transition-colors ${
@@ -55,16 +52,12 @@ export default function Mmpi2Results() {
     </button>
   )
 
-  /* ─── helper getScore ─── */
   const getScore = (key: string): number | string => {
     let rec = scores[key]
-
-    /* alias Mf-m / Mf-f */
     if (!rec && key === "Mf") {
       const alt = gender === "M" ? "Mf-m" : "Mf-f"
       rec = scores[alt]
     }
-
     if (!rec) return "—"
     if (mode === "t" && rec.t !== undefined) return rec.t
     if (mode === "k" && rec.k !== undefined) return rec.k
@@ -84,7 +77,6 @@ export default function Mmpi2Results() {
     </div>
   )
 
-  /* ─── zapis ─── */
   const canSave = !fromStorage && Boolean(gender) && Object.keys(scores).length
 
   const handleSave = () => {
@@ -93,10 +85,8 @@ export default function Mmpi2Results() {
     nav("/results")
   }
 
-  /* ─── JSX ─── */
   return (
     <section className="flex flex-col gap-4 p-4">
-      {/* zakładki */}
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium">Wartości:</span>
         <Tab id="t" label="Tenowe" />
@@ -104,12 +94,10 @@ export default function Mmpi2Results() {
         <Tab id="raw" label="Surowe" />
       </div>
 
-      {/* wszystkie grupy skal z scaleHierarchy */}
       {Object.entries(scaleHierarchy).map(([grp, keys]) =>
         renderGroup(grp, keys as string[])
       )}
 
-      {/* przycisk zapisu */}
       {!fromStorage && (
         <div className="mt-6 flex justify-end">
           <Button
