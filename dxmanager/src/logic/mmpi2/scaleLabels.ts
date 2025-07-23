@@ -6,6 +6,7 @@ export const scaleLabels: Record<string, { en: string; pl?: string }> = {
   TRIN: { en: "True Response Inconsistency", pl: "Skala Niespójności Odpowiedzi Zgodnych" },
 
   // Skale kontrolne i kliniczne
+  "?": { en: "Number of omitted responses", pl: "Nie wiem" },
   L: { en: "Lie Scale", pl: "Skala Kłamstwa" },
   F: { en: "Infrequency Scale", pl: "Skala Odpowiedzi Rzadkich" },
   Fb: { en: "Back Infrequency", pl: "Skala Odpowiedzi Rzadkich dla Dalszej Części Testu" },

@@ -7,6 +7,8 @@ import { getResults, saveResult } from "@/lib/storage"
 import { Answer } from "@/logic/types"
 import { scaleLabels } from "@/logic/mmpi2/scaleLabels"
 
+const TOTAL = 567
+
 export default function Mmpi2Results() {
   const { testId = "mmpi2" } = useParams()
   const [q] = useSearchParams()
@@ -26,7 +28,13 @@ export default function Mmpi2Results() {
       if (!last) return
       setGender(last.gender)
       setAnswers(last.answers)
-      setScores(last.scores)
+
+      const missing = TOTAL - last.answers.filter(Boolean).length
+      const patchedScores = {
+        ...last.scores,
+        "?": { raw: missing, t: missing, k: missing }
+      }
+      setScores(patchedScores)
     }
     load()
   }, [testId])
@@ -64,18 +72,30 @@ export default function Mmpi2Results() {
     return rec.raw
   }
 
-  const renderGroup = (title: string, keys: string[]) => (
-    <div key={title} className="flex flex-col gap-1">
-      <h3 className="mt-4 text-sm font-medium">{title}</h3>
-      <div className="grid grid-cols-4 gap-x-3 text-sm">
-        {keys.map((k) => (
-          <span key={k} title={scaleLabels[k]?.pl ?? k}>
-            {k}: <b>{getScore(k)}</b>
-          </span>
-        ))}
+  const renderGroup = (title: string, keys: string[]) => {
+    const columns = 4
+    const rows = Math.ceil(keys.length / columns)
+    const verticalOrdered: string[] = []
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < columns; c++) {
+        const index = c * rows + r
+        if (index < keys.length) verticalOrdered.push(keys[index])
+      }
+    }
+
+    return (
+      <div key={title} className="flex flex-col gap-1">
+        <h3 className="mt-4 text-sm font-medium">{title}</h3>
+        <div className="grid grid-cols-4 gap-x-3 text-sm">
+          {verticalOrdered.map((k) => (
+            <span key={k} title={scaleLabels[k]?.pl ?? k}>
+              {k}: <b>{getScore(k)}</b>
+            </span>
+          ))}
+        </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const canSave = !fromStorage && Boolean(gender) && Object.keys(scores).length
 

@@ -24,7 +24,7 @@ export default function PatientInfoBar({ onGenderSelect }: Props) {
           <select
             className={cn(
               "input rounded-md bg-background text-foreground",
-              "dark:bg-background dark:text-black", // czarny tekst w natywnym menu
+              "dark:bg-background dark:text-white", // biały tekst w natywnym menu
               !gender && "border-destructive focus:border-destructive"
             )}
             required

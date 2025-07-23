@@ -10,6 +10,7 @@ import { computeScores } from "../../logic/mmpi2/compute"
 import { saveResult } from "@/lib/storage"
 
 const TOTAL = 567
+const MAX_MISSING = 30
 
 export default function Mmpi2InputView() {
   const { testId = "mmpi2" } = useParams()
@@ -18,6 +19,7 @@ export default function Mmpi2InputView() {
   const [answers, setAnswers] = useState<Answer[]>(Array(TOTAL).fill(null))
   const [idx, setIdx] = useState(0)
   const [gender, setGender] = useState<"M" | "F" | null>(null)
+  const [hasAlerted, setHasAlerted] = useState(false)
 
   const save = (i: number, val: Answer) => {
     setAnswers((p) => {
@@ -29,19 +31,33 @@ export default function Mmpi2InputView() {
   }
 
   const done = answers.filter(Boolean).length
+  const missing = TOTAL - done
+  const allAnsweredOrSkipped = done + missing === TOTAL
 
   useEffect(() => {
-    if (done === TOTAL && gender) {
+    if (idx !== TOTAL - 1) return
+    if (!allAnsweredOrSkipped) return
+    if (missing >= MAX_MISSING) return
+
+    if (missing > 0 && gender && !hasAlerted) {
+      const confirmProceed = confirm(`Brakuje ${missing} odpowiedzi. Czy na pewno chcesz kontynuować?`)
+      if (!confirmProceed) return
+      setHasAlerted(true)
+    }
+
+    if ((missing === 0 || hasAlerted) && gender) {
       const g = gender === "F" ? "K" : "M"
       const scores = computeScores(answers, g)
       saveResult({ testId, gender: g, answers, scores })
       navigate(`/tests/${testId}/results`, { replace: true })
     }
-  }, [done, gender, answers, testId, navigate])
+  }, [done, gender, answers, testId, navigate, hasAlerted, missing, allAnsweredOrSkipped, idx])
 
   return (
     <div className="relative flex flex-col h-full">
-      <PatientInfoBar onGenderSelect={setGender} />
+      <div className="text-white">
+        <PatientInfoBar onGenderSelect={setGender} />
+      </div>
 
       <div className="relative flex-1 min-h-0">
         <AnswerMatrix
