@@ -1,0 +1,89 @@
+.
+├── components.json
+├── drzewko.txt
+├── index.html
+├── package.json
+├── package-lock.json
+├── postcss.config.js
+├── public
+│   └── sounds
+│       ├── beep-01a-original.wav
+│       ├── beep-01a.wav
+│       ├── beep-02-original.wav
+│       └── beep-02.wav
+├── README.md
+├── src
+│   ├── App.tsx
+│   ├── components
+│   │   ├── AppShell.tsx
+│   │   ├── MainMenuBar.tsx
+│   │   ├── MainSidebar.tsx
+│   │   ├── mmpi2
+│   │   │   ├── AnswerMatrix.tsx
+│   │   │   ├── GenderToggle.tsx
+│   │   │   ├── PatientInfoBar.tsx
+│   │   │   ├── PatientInfo.tsx
+│   │   │   ├── ScoreModeToggle.tsx
+│   │   │   └── ScoreSummary.tsx
+│   │   ├── theme
+│   │   │   └── ThemeProvider.tsx
+│   │   ├── ThemeToggle.tsx
+│   │   └── ui
+│   │       ├── button.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── navigation-menu.tsx
+│   │       ├── ProgressBar.tsx
+│   │       ├── progress.tsx
+│   │       ├── resizable.tsx
+│   │       ├── separator.tsx
+│   │       ├── toggle-group.tsx
+│   │       └── tooltip.tsx
+│   ├── index.css
+│   ├── lib
+│   │   ├── storage.ts
+│   │   └── utils.ts
+│   ├── logic
+│   │   ├── mmpi2
+│   │   │   ├── calculate.ts
+│   │   │   ├── calculators
+│   │   │   │   ├── k-corrected.ts
+│   │   │   │   ├── raw.ts
+│   │   │   │   ├── ten.ts
+│   │   │   │   ├── test-data.ts
+│   │   │   │   ├── trin.ts
+│   │   │   │   ├── utils.ts
+│   │   │   │   └── vrin.ts
+│   │   │   ├── compute.ts
+│   │   │   ├── criteria
+│   │   │   │   ├── k-corrections.ts
+│   │   │   │   ├── main-scales.ts
+│   │   │   │   ├── ten-scale.ts
+│   │   │   │   ├── trin-scale.ts
+│   │   │   │   └── vrin-scale.ts
+│   │   │   ├── scale-hierarchy.ts
+│   │   │   ├── scaleLabels.ts
+│   │   │   ├── types.ts
+│   │   │   └── utils.ts
+│   │   ├── types.ts
+│   │   └── utils
+│   │       └── generateTestId.ts
+│   ├── main.tsx
+│   ├── types
+│   │   └── tauri.d.ts
+│   └── views
+│       ├── Home.tsx
+│       ├── mmpi2
+│       │   ├── Mmpi2Input.tsx
+│       │   ├── Mmpi2InputView.tsx
+│       │   └── Mmpi2Results.tsx
+│       ├── TestInputView.tsx
+│       ├── TestIntro.tsx
+│       ├── TestResultsList.tsx
+│       └── TestResultView.tsx
+├── struktura.txt
+├── tailwind.config.js
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+
+17 directories, 70 files
