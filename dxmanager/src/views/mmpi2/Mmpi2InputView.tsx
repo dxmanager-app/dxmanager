@@ -1,5 +1,3 @@
-// src/views/mmpi2/Mmpi2InputView.tsx
-
 import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
@@ -9,6 +7,10 @@ import ProgressBar from "@/components/ui/ProgressBar"
 import { Answer } from "@/logic/types"
 import { computeScores } from "@/logic/mmpi2/compute"
 import { saveResult } from "@/lib/storage"
+
+// shadcn/ui
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 
 const TOTAL = 567
 const MAX_MISSING = 30
@@ -38,19 +40,19 @@ export default function Mmpi2InputView() {
     setShowDialog(true)
   }
 
-  const saveAndGoToResults = () => {
+  const saveAndGoToResults = async () => {
     if (!gender) return
     const g = gender === "F" ? "K" : "M"
     const scores = computeScores(answers, g)
-    const id = saveResult({ testId, gender: g, answers, scores })
-    navigate(`/results/${id}`, { replace: true })
+    const id = await saveResult({ testId, gender: g, answers, scores })
+    navigate(`/tests/${testId}/results?id=${id}`, { replace: true })
   }
 
-  const saveAndReset = () => {
+  const saveAndReset = async () => {
     if (!gender) return
     const g = gender === "F" ? "K" : "M"
     const scores = computeScores(answers, g)
-    saveResult({ testId, gender: g, answers, scores })
+    await saveResult({ testId, gender: g, answers, scores })
     setAnswers(Array(TOTAL).fill(null))
     setIdx(0)
     setGender(null)
@@ -75,12 +77,12 @@ export default function Mmpi2InputView() {
 
       {idx === TOTAL - 1 && (
         <div className="sticky bottom-4 flex justify-end px-4 mt-2">
-          <button
-            className="px-4 py-2 rounded-md bg-primary text-black dark:text-black"
+          <Button
+            className="px-4 py-2"
             onClick={handleFinish}
           >
             Zakończ test
-          </button>
+          </Button>
         </div>
       )}
 
@@ -88,51 +90,77 @@ export default function Mmpi2InputView() {
         <ProgressBar total={TOTAL} answered={done} />
       </div>
 
-      {showDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-background p-6 rounded-lg shadow-lg w-[90%] max-w-md text-center">
-            {missing >= MAX_MISSING ? (
-              <>
-                <p className="mb-4 text-red-600">
-                  Pominięto {missing} odpowiedzi. Nie możesz zakończyć testu przy 30 lub więcej pominięciach.
-                </p>
-                <button
-                  className="px-4 py-2 rounded-md bg-gray-700 text-white dark:text-black"
-                  onClick={() => setShowDialog(false)}
-                >
-                  Wróć do testu
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="mb-4">
-                  {missing === 0
-                    ? "Udzielono wszystkich odpowiedzi. Wybierz jedną z opcji poniżej:"
-                    : `Pominięto ${missing} odpowiedzi. Wybierz jedną z opcji poniżej:`}
-                </p>
-                <div className="flex flex-col gap-3">
-                  <button
-                    className="px-4 py-2 rounded-md bg-gray-700 text-white dark:text-black"
-                    onClick={saveAndGoToResults}
-                  >
-                    Zapisz i zobacz wyniki
-                  </button>
-                  <button
-                    className="px-4 py-2 rounded-md bg-gray-700 text-white dark:text-black"
-                    onClick={saveAndReset}
-                  >
-                    Zapisz i rozpocznij nowy test
-                  </button>
-                  <button
-                    className="px-4 py-2 rounded-md bg-gray-700 text-white dark:text-black"
-                    onClick={() => setShowDialog(false)}
-                  >
-                    Poprawiam odpowiedzi
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+      {/* Nowy, wystylizowany modal */}
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {missing >= MAX_MISSING
+                ? "Zbyt wiele braków"
+                : missing === 0
+                  ? "Wszystkie odpowiedzi zostały udzielone"
+                  : `Pominięto ${missing} odpowiedzi`}
+            </DialogTitle>
+            <DialogDescription>
+              {missing >= MAX_MISSING
+                ? "Nie możesz zakończyć testu przy 30 lub więcej pominięciach."
+                : "Wybierz, co chcesz zrobić dalej:"}
+            </DialogDescription>
+          </DialogHeader>
+          
+<DialogFooter className="flex flex-wrap justify-center gap-3 mt-6">
+  {missing >= MAX_MISSING ? (
+    <Button
+      className="flex-1 min-w-[160px]"
+      onClick={() => setShowDialog(false)}
+    >
+      Wróć do testu
+    </Button>
+  ) : (
+    <>
+      <Button
+        className="flex-1 min-w-[160px]"
+        onClick={saveAndGoToResults}
+      >
+        Zapisz i zobacz wyniki
+      </Button>
+      <Button
+        className="flex-1 min-w-[160px]"
+        onClick={saveAndReset}
+      >
+        Zapisz i rozpocznij nowy test
+      </Button>
+      <Button
+        className="flex-1 min-w-[160px]"
+        onClick={() => setShowDialog(false)}
+      >
+        Poprawiam odpowiedzi
+      </Button>
+    </>
+  )}
+</DialogFooter>
+
+
+        </DialogContent>
+      </Dialog>
+
+      {/* Przyciski debugowe – tylko w trybie development */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="fixed bottom-20 left-4">
+          <button
+            className="px-4 py-2 rounded-md bg-red-600 text-white text-sm"
+            onClick={() => {
+              const filled = Array(TOTAL)
+                .fill(null)
+                .map(() => (Math.random() > 0.5 ? "T" : "F"))
+              setAnswers(filled)
+              setGender("M")
+              setIdx(TOTAL - 1)
+              setShowDialog(true)
+            }}
+          >
+            Wypełnij automatycznie (debug)
+          </button>
         </div>
       )}
     </div>

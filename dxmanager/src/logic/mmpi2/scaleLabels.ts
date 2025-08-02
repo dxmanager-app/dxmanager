@@ -132,5 +132,12 @@ export const scaleLabels: Record<string, { en: string; pl?: string }> = {
   // Podskale Si
   Si1: { en: "Shyness/Self-Consciousness", pl: "Skala Nieśmiałości" },
   Si2: { en: "Social Avoidance", pl: "Skala Społecznego Unikania" },
-  Si3: { en: "Self/Other Alienation", pl: "Skala Alienacji" }
+  Si3: { en: "Self/Other Alienation", pl: "Skala Alienacji" },
+
+  // Brakujące skale z Twojej listy
+  AGGR: { en: "Aggressiveness", pl: "Agresywności" },
+  DISC: { en: "Disconstraint", pl: "Braku Zahamowań" },
+  INTR: { en: "Introversion/Low Positive Emotionality", pl: "Introwersji/Niskiej Pozytywnej Emocjonalności" },
+  NEGE: { en: "Negative Emotionality/Neuroticism", pl: "Negatywnej Emocjonalności/Neurotyczności" },
+  PSYC: { en: "Psychoticism", pl: "Psychotyzmu" }
 };

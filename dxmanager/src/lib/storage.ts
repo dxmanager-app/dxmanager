@@ -1,10 +1,9 @@
-// src/lib/storage.ts
 import { v4 as uuid } from "uuid"
 
 export interface SavedResult {
   id: string
   testId: string
-  date: string       // ISO string
+  date: string
   gender: "M" | "K"
   answers: (null | "T" | "F")[]
   scores: Record<string, unknown>
@@ -59,13 +58,19 @@ export async function getResults(): Promise<SavedResult[]> {
 }
 
 export async function getResult(id: string): Promise<SavedResult | null> {
+  console.log(">>> getResult() – szukamy id =", id)
   const results = await getResults()
+  console.log(">>> dostępne wyniki =", results)
   return results.find((r) => r.id === id) || null
 }
 
-export async function saveResult(r: Omit<SavedResult, "id" | "date">): Promise<void> {
+export async function saveResult(
+  r: Omit<SavedResult, "id" | "date">
+): Promise<string> {
   const results = await getResults()
-  const existsAlready = results.some(
+
+  // sprawdzamy, czy już istnieje identyczny wynik
+  const existing = results.find(
     (x) =>
       x.testId === r.testId &&
       x.gender === r.gender &&
@@ -73,19 +78,29 @@ export async function saveResult(r: Omit<SavedResult, "id" | "date">): Promise<v
       JSON.stringify(x.scores) === JSON.stringify(r.scores)
   )
 
-  if (existsAlready) return
+  if (existing) {
+    console.log(">>> saveResult() – znaleziono istniejący wynik id =", existing.id)
+    return existing.id
+  }
 
-  results.push({ ...r, id: uuid(), date: new Date().toISOString() })
+  const newId = uuid()
+  results.push({ ...r, id: newId, date: new Date().toISOString() })
+
+  console.log(">>> saveResult() – zapisujemy nowy wynik id =", newId)
+  console.log(">>> wszystkie wyniki po zapisie =", results)
+
   await loadTauriModules()
   if (!writeTextFile || !appDataDir) {
     localStorage.setItem("dxmanager-results", JSON.stringify(results))
-    return
+    return newId
   }
   try {
     const path = await getResultsPath()
     await writeTextFile(path, JSON.stringify(results, null, 2))
+    return newId
   } catch {
     localStorage.setItem("dxmanager-results", JSON.stringify(results))
+    return newId
   }
 }
 

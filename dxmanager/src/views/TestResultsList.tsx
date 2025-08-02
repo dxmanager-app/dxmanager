@@ -1,11 +1,9 @@
-// src/views/TestResultsList.tsx
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { getResults, deleteResult, SavedResult } from "@/lib/storage"
 import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 
 export default function TestResultsList() {
-  const navigate = useNavigate()
   const [results, setResults] = useState<SavedResult[]>([])
 
   useEffect(() => {
@@ -36,12 +34,7 @@ export default function TestResultsList() {
             </span>
           </div>
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              asChild
-              variant="outline"
-              onClick={() => navigate(`/tests/${r.testId}/results?id=${r.id}`)}
-            >
+            <Button size="sm" asChild variant="outline">
               <Link to={`/tests/${r.testId}/results?id=${r.id}`}>Pokaż</Link>
             </Button>
             <Button
@@ -59,4 +52,4 @@ export default function TestResultsList() {
       ))}
     </section>
   )
-} 
+}

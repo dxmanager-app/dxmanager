@@ -1,4 +1,3 @@
-// src/views/TestResultView.tsx
 import { useSearchParams, useParams } from "react-router-dom"
 import { getResult } from "@/lib/storage"
 import Mmpi2Results from "@/views/mmpi2/Mmpi2Results"
@@ -8,24 +7,46 @@ export default function TestResultView() {
   const { testId } = useParams()
   const [params] = useSearchParams()
   const id = params.get("id")
-  const [loaded, setLoaded] = useState(false)
+
+  const [status, setStatus] = useState<"loading" | "notfound" | "ok">("loading")
 
   useEffect(() => {
-    if (!id) return
+    console.log(">>> TestResultView – URL id =", id)
+    if (!id) {
+      setStatus("notfound")
+      return
+    }
+
     getResult(id).then((res) => {
-      if (!res) return
+      if (!res) {
+        console.log(">>> TestResultView – nie znaleziono wyniku dla id =", id)
+        setStatus("notfound")
+        return
+      }
+
+      console.log(">>> TestResultView – znaleziono wynik:", res)
+
+      // zapisujemy dane wyniku w localStorage tylko raz
       localStorage.setItem("mmpi2-scores", JSON.stringify(res.scores))
       localStorage.setItem("mmpi2-answers", JSON.stringify(res.answers))
       localStorage.setItem("mmpi2-gender", res.gender)
-      setLoaded(true)
+
+      setStatus("ok")
     })
   }, [id])
 
-  if (!id) {
-    return testId === "mmpi2" ? <Mmpi2Results /> : <p>Brak widoku…</p>
+  if (status === "loading") {
+    return <p className="p-4 text-center">Ładowanie…</p>
   }
 
-  if (!loaded) return <p className="p-4">Ładowanie…</p>
+  if (status === "notfound") {
+    return <p className="p-4 text-center">Nie znaleziono wyniku.</p>
+  }
 
-  return testId === "mmpi2" ? <Mmpi2Results /> : <p>Brak widoku…</p>
+  // tu pokazujemy wyłącznie widok wyników
+  if (testId === "mmpi2") {
+    return <Mmpi2Results />
+  }
+
+  return <p className="p-4 text-center">Brak widoku dla testu: {testId}</p>
 }
