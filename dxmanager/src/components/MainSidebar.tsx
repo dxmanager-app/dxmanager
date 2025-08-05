@@ -1,4 +1,5 @@
-// src/components/MainSidebar.tsx
+// app/dxmanager/src/components/MainSidebar.tsx
+import React, { useEffect, useRef, useState } from "react"
 import {
   ClipboardEdit,
   BarChartBig,
@@ -8,7 +9,6 @@ import {
   Sun,
   UserCircle2,
 } from "lucide-react"
-import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import {
@@ -27,6 +27,26 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+// 🔹 forwardRef dla Link jako child
+const SidebarLink = React.forwardRef<HTMLAnchorElement, React.ComponentProps<typeof Link>>(
+  ({ children, ...props }, ref) => (
+    <Link ref={ref} {...props}>
+      {children}
+    </Link>
+  )
+)
+SidebarLink.displayName = "SidebarLink"
+
+// 🔹 forwardRef dla Button jako child
+const SidebarButton = React.forwardRef<HTMLButtonElement, React.ComponentProps<typeof Button>>(
+  ({ children, ...props }, ref) => (
+    <Button ref={ref} {...props}>
+      {children}
+    </Button>
+  )
+)
+SidebarButton.displayName = "SidebarButton"
 
 export default function MainSidebar() {
   const [theme, setTheme] = useState<"light" | "dark">("dark")
@@ -72,15 +92,23 @@ export default function MainSidebar() {
 
   const navItems = [
     {
-      icon: <UserCircle2 className="h-6 w-6" />, to: "/account", label: "Mój profil", disabled: true,
+      icon: <UserCircle2 className="h-6 w-6" />,
+      to: "/account",
+      label: "Mój profil",
+      disabled: true,
     },
     {
-      icon: <ClipboardEdit className="h-6 w-6" />, label: "Nowe badanie", submenu: [
+      icon: <ClipboardEdit className="h-6 w-6" />,
+      label: "Nowe badanie",
+      submenu: [
         { to: "/tests/mmpi2", label: "MMPI-2" },
+        { to: "/tests/waisr", label: "WAIS-R(PL)" }, // 🔹 dodany WAIS-R
       ],
     },
     {
-      icon: <BarChartBig className="h-6 w-6" />, to: "/results", label: "Zapisane wyniki",
+      icon: <BarChartBig className="h-6 w-6" />,
+      to: "/results",
+      label: "Zapisane wyniki",
     },
   ]
 
@@ -119,7 +147,7 @@ export default function MainSidebar() {
                 {submenu ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button
+                      <SidebarButton
                         variant="ghost"
                         className={cn(
                           "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium w-full justify-start",
@@ -128,19 +156,19 @@ export default function MainSidebar() {
                       >
                         {icon}
                         {!collapsed && <span className="truncate">{label}</span>}
-                      </Button>
+                      </SidebarButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent side="right">
                       {submenu.map((item) => (
                         <DropdownMenuItem key={item.label} asChild>
-                          <Link to={item.to}>{item.label}</Link>
+                          <SidebarLink to={item.to}>{item.label}</SidebarLink>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Link
-                    to={disabled ? "#" : to}
+                  <SidebarLink
+                    to={disabled ? "#" : (to as string)}
                     className={cn(
                       "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground w-full",
                       disabled && "opacity-50 cursor-not-allowed"
@@ -148,7 +176,7 @@ export default function MainSidebar() {
                   >
                     {icon}
                     {!collapsed && <span className="truncate">{label}</span>}
-                  </Link>
+                  </SidebarLink>
                 )}
               </TooltipTrigger>
               {collapsed && <TooltipContent side="right">{label}</TooltipContent>}
@@ -159,13 +187,13 @@ export default function MainSidebar() {
         <div className="mt-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
+              <SidebarButton
                 variant="ghost"
                 className="w-full justify-start px-3 py-2 text-sm font-medium"
               >
                 <Settings className="mr-2 h-5 w-5" />
                 {!collapsed && <span className="truncate">Ustawienia</span>}
-              </Button>
+              </SidebarButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right">
               <DropdownMenuSub>
@@ -178,9 +206,15 @@ export default function MainSidebar() {
                   Tryb motywu
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => changeTheme("light")}>Jasny</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => changeTheme("dark")}>Ciemny</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => changeTheme("system")}>Systemowy</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeTheme("light")}>
+                    Jasny
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeTheme("dark")}>
+                    Ciemny
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeTheme("system")}>
+                    Systemowy
+                  </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
             </DropdownMenuContent>
@@ -189,4 +223,4 @@ export default function MainSidebar() {
       </aside>
     </TooltipProvider>
   )
-}  
+}

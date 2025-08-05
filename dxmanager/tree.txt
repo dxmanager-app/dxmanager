@@ -1,7 +1,9 @@
 .
 ├── components.json
-├── drzewko.txt
+├── config.toml
+├── .gitignore
 ├── index.html
+├── jsconfig.json
 ├── package.json
 ├── package-lock.json
 ├── postcss.config.js
@@ -21,16 +23,25 @@
 │   │   ├── mmpi2
 │   │   │   ├── AnswerMatrix.tsx
 │   │   │   ├── GenderToggle.tsx
+│   │   │   ├── GroupDetailsTable.tsx
 │   │   │   ├── PatientInfoBar.tsx
 │   │   │   ├── PatientInfo.tsx
 │   │   │   ├── ScoreModeToggle.tsx
 │   │   │   └── ScoreSummary.tsx
+│   │   ├── patients
+│   │   │   ├── PatientForm.tsx
+│   │   │   └── PatientProfile.tsx
 │   │   ├── theme
 │   │   │   └── ThemeProvider.tsx
 │   │   ├── ThemeToggle.tsx
 │   │   └── ui
 │   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       ├── checkbox.tsx
+│   │       ├── data-table.tsx
+│   │       ├── dialog.tsx
 │   │       ├── dropdown-menu.tsx
+│   │       ├── FloatingWindow.tsx
 │   │       ├── navigation-menu.tsx
 │   │       ├── ProgressBar.tsx
 │   │       ├── progress.tsx
@@ -40,6 +51,7 @@
 │   │       └── tooltip.tsx
 │   ├── index.css
 │   ├── lib
+│   │   ├── dataStore.ts
 │   │   ├── storage.ts
 │   │   └── utils.ts
 │   ├── logic
@@ -65,10 +77,13 @@
 │   │   │   ├── types.ts
 │   │   │   └── utils.ts
 │   │   ├── types.ts
-│   │   └── utils
-│   │       └── generateTestId.ts
+│   │   ├── utils
+│   │   │   └── generateTestId.ts
+│   │   └── waisr
+│   │       └── norms.ts
 │   ├── main.tsx
 │   ├── types
+│   │   ├── results.ts
 │   │   └── tauri.d.ts
 │   └── views
 │       ├── Home.tsx
@@ -76,14 +91,23 @@
 │       │   ├── Mmpi2Input.tsx
 │       │   ├── Mmpi2InputView.tsx
 │       │   └── Mmpi2Results.tsx
+│       ├── patients
+│       │   └── PatientsView.tsx
 │       ├── TestInputView.tsx
 │       ├── TestIntro.tsx
+│       ├── TestRegistry.tsx
 │       ├── TestResultsList.tsx
-│       └── TestResultView.tsx
-├── struktura.txt
+│       ├── TestResultView.tsx
+│       └── waisr
+│           ├── TestInputView.tsx
+│           ├── WaisrInput.tsx
+│           ├── WaisrInputView.tsx
+│           └── WaisrResults.tsx
 ├── tailwind.config.js
+├── tree.txt
 ├── tsconfig.json
 ├── tsconfig.node.json
-└── vite.config.ts
+├── vite.config.ts
+└── vite-env.d.ts
 
-17 directories, 70 files
+21 directories, 90 files

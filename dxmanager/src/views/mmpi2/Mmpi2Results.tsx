@@ -1,271 +1,216 @@
-// src/views/mmpi2/Mmpi2Results.tsx
+// app/dxmanager/src/views/mmpi2/Mmpi2Results.tsx
+import { useEffect, useState } from "react"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { scaleHierarchy } from "@/logic/mmpi2/scale-hierarchy"
+import { getResults } from "@/lib/storage"
+import { Settings, Maximize2, Filter } from "lucide-react"
+import { FloatingWindow } from "@/components/ui/FloatingWindow"
+import { GroupDetailsTable } from "@/components/mmpi2/GroupDetailsTable"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Checkbox } from "@/components/ui/checkbox"
 
-import { useEffect, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Checkbox } from "@/components/ui/checkbox";
-import { scaleHierarchy } from "@/logic/mmpi2/scale-hierarchy";
-import { getResults, saveResult } from "@/lib/storage";
-import { Answer } from "@/logic/types";
-import { scaleLabels } from "@/logic/mmpi2/scaleLabels";
-import { Settings } from "lucide-react";
-
-type SortBy = "default" | "skalaAsc" | "skalaDesc" | "WSAsc" | "WSDesc" | "KAsc" | "KDesc" | "TAsc" | "TDesc";
+type WindowState = {
+  id: string
+  group: string
+  visibleColumns: { raw: boolean; k: boolean; t: boolean }
+  visibleRows: string[]
+}
 
 export default function Mmpi2Results() {
-  const { testId = "mmpi2" } = useParams();
-  const [q] = useSearchParams();
-  const fromStorage = Boolean(q.get("id"));
-  const nav = useNavigate();
+  const { testId = "mmpi2" } = useParams()
+  const [q] = useSearchParams()
+  const fromStorage = Boolean(q.get("id"))
+  const nav = useNavigate()
 
-  const [gender, setGender] = useState<"M" | "K">("M");
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [scores, setScores] = useState<Record<string, any>>({});
-  const [visibleCols, setVisibleCols] = useState<string[]>(["WS", "K", "T"]);
-  const [visibleRows, setVisibleRows] = useState<Record<string, boolean>>({});
-  const [sortBy, setSortBy] = useState<SortBy>("default");
+  const [scores, setScores] = useState<Record<string, any>>({})
+  const [isSettingsMode, setIsSettingsMode] = useState(false)
+  const [openWindows, setOpenWindows] = useState<WindowState[]>([])
 
   useEffect(() => {
     async function load() {
-      const results = await getResults();
-      const filtered = results.filter((r) => r.testId === testId);
-      const last = filtered.length > 0 ? filtered[filtered.length - 1] : null;
-      if (!last) return;
-      setGender(last.gender as "M" | "K");
-      setAnswers(last.answers);
-      setScores(last.scores);
-
-      // Inicjalizacja widocznych wierszy
-      const initRows: Record<string, boolean> = {};
-      Object.values(scaleHierarchy).flat().forEach((k) => {
-        initRows[k] = true;
-      });
-      setVisibleRows(initRows);
+      const results = await getResults()
+      const filtered = results.filter((r) => r.testId === testId)
+      const last = filtered.length > 0 ? filtered[filtered.length - 1] : null
+      if (!last) return
+      setScores(last.scores)
     }
-    load();
-  }, [testId]);
+    load()
+  }, [testId])
 
-  if (!Object.keys(scores).length) {
-    return (
-      <p className="p-4 text-center">
-        Brak wyników do wyświetlenia dla testu: {testId}
-      </p>
-    );
+  const handleOpenDetails = (groupName: string) => {
+    if (openWindows.some((w) => w.group === groupName)) return
+    const allRows = scaleHierarchy[groupName as keyof typeof scaleHierarchy] || []
+    setOpenWindows((prev) => [
+      ...prev,
+      {
+        id: crypto.randomUUID(),
+        group: groupName,
+        visibleColumns: { raw: true, k: true, t: true },
+        visibleRows: allRows,
+      },
+    ])
   }
 
-  const handleSave = () => {
-    if (!fromStorage && gender && Object.keys(scores).length) {
-      saveResult({ testId, gender, answers, scores });
-      nav("/results");
-    }
-  };
+  const handleCloseWindow = (id: string) => {
+    setOpenWindows((prev) => prev.filter((w) => w.id !== id))
+  }
 
-  const handleColumnToggle = (col: string) => {
-    setVisibleCols((prev) =>
-      prev.includes(col) ? prev.filter((c) => c !== col) : [...prev, col]
-    );
-  };
+  const updateWindowFilter = (id: string, update: Partial<Omit<WindowState, "id" | "group">>) => {
+    setOpenWindows((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, ...update } : w))
+    )
+  }
 
-  const getScoreValue = (key: string, col: string) => {
-    const rec = scores[key];
-    if (!rec) return "—";
-    if (col === "T") return rec.t ?? "—";
-    if (col === "K") return rec.k ?? "—";
-    if (col === "WS") return rec.raw ?? "—";
-    return "—";
-  };
-
-  const sortScales = (keys: string[]) => {
-    switch (sortBy) {
-      case "skalaAsc":
-        return [...keys].sort((a, b) => a.localeCompare(b));
-      case "skalaDesc":
-        return [...keys].sort((a, b) => b.localeCompare(a));
-      case "TAsc":
-        return [...keys].sort(
-          (a, b) => (scores[a]?.t ?? 0) - (scores[b]?.t ?? 0)
-        );
-      case "TDesc":
-        return [...keys].sort(
-          (a, b) => (scores[b]?.t ?? 0) - (scores[a]?.t ?? 0)
-        );
-      case "KAsc":
-        return [...keys].sort(
-          (a, b) => (scores[a]?.k ?? 0) - (scores[b]?.k ?? 0)
-        );
-      case "KDesc":
-        return [...keys].sort(
-          (a, b) => (scores[b]?.k ?? 0) - (scores[a]?.k ?? 0)
-        );
-      case "WSAsc":
-        return [...keys].sort(
-          (a, b) => (scores[a]?.raw ?? 0) - (scores[b]?.raw ?? 0)
-        );
-      case "WSDesc":
-        return [...keys].sort(
-          (a, b) => (scores[b]?.raw ?? 0) - (scores[a]?.raw ?? 0)
-        );
-      default:
-        return keys;
-    }
-  };
+  const isVrinTrinGroup = (name: string) =>
+    name.toLowerCase().includes("vrin") && name.toLowerCase().includes("trin")
 
   return (
-    <section className="flex flex-col gap-4 p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Wyniki testu MMPI-2</h2>
-        {!fromStorage && (
-          <Button onClick={handleSave} className="px-6">
-            Zapisz wyniki
+    <section className="flex flex-col gap-6 p-4">
+      {/* Nagłówek */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-semibold">Dashboard wyników MMPI-2</h1>
+        <div className="flex gap-2">
+          <Button
+            variant={isSettingsMode ? "default" : "secondary"}
+            onClick={() => setIsSettingsMode((p) => !p)}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            {isSettingsMode ? "Zakończ ustawienia" : "Widok"}
           </Button>
-        )}
+          {!fromStorage && (
+            <Button variant="default" onClick={() => nav("/results")}>
+              Zapisz
+            </Button>
+          )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {Object.entries(scaleHierarchy).map(([groupName, keys]) => {
-          const sortedKeys = sortScales(keys as string[]);
-          return (
-            <Card key={groupName} className="overflow-hidden">
-              <CardHeader className="flex justify-between items-center">
-                <CardTitle className="text-base">{groupName}</CardTitle>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="ghost">
-                      <Settings className="h-5 w-5" />
+      {/* Kafelki */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Object.entries(scaleHierarchy).map(([groupName, scales]) => (
+          <Card
+            key={groupName}
+            className="shadow-lg overflow-hidden hover:shadow-xl transition-shadow bg-background text-foreground"
+          >
+            <CardHeader className="bg-muted flex justify-between items-center">
+              <CardTitle className="text-base">{groupName}</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                title="Otwórz szczegóły"
+                onClick={() => handleOpenDetails(groupName)}
+              >
+                <Maximize2 className="w-4 h-4" />
+              </Button>
+            </CardHeader>
+            <CardContent className="p-3 text-sm">
+              <div className="max-h-40 overflow-y-auto pr-2">
+                <ul className="space-y-1">
+                  {scales.map((scaleKey) => {
+                    const item = scores[scaleKey]
+                    const value = isVrinTrinGroup(groupName)
+                      ? item?.raw ?? "—"
+                      : item?.t ?? "—"
+                    return (
+                      <li
+                        key={scaleKey}
+                        className="flex justify-between border-b border-border last:border-b-0 py-1"
+                      >
+                        <span className="font-medium">{scaleKey}</span>
+                        <span>{value}</span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Okna */}
+      {openWindows.map((w) => {
+        const allRows = scaleHierarchy[w.group as keyof typeof scaleHierarchy] || []
+        return (
+          <FloatingWindow
+            key={w.id}
+            id={w.id}
+            title={
+              <div className="flex justify-between items-center w-full">
+                <span>{w.group}</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Filter className="w-4 h-4" />
                     </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => handleColumnToggle("WS")}>
-                      <Checkbox checked={visibleCols.includes("WS")} />
-                      <span className="ml-2">Wyświetl WS</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleColumnToggle("K")}>
-                      <Checkbox checked={visibleCols.includes("K")} />
-                      <span className="ml-2">Wyświetl K</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleColumnToggle("T")}>
-                      <Checkbox checked={visibleCols.includes("T")} />
-                      <span className="ml-2">Wyświetl T</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardHeader>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-64">
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-sm font-medium mb-2">Widoczne kolumny</p>
+                        {["raw", "k", "t"].map((key) => (
+                          <div key={key} className="flex items-center gap-2 mb-1">
+                            <Checkbox
+                              id={`col-${key}`}
+                              checked={w.visibleColumns[key as keyof typeof w.visibleColumns]}
+                              onCheckedChange={(val) =>
+                                updateWindowFilter(w.id, {
+                                  visibleColumns: {
+                                    ...w.visibleColumns,
+                                    [key]: Boolean(val),
+                                  },
+                                })
+                              }
+                            />
+                            <label htmlFor={`col-${key}`} className="text-sm capitalize">
+                              {key.toUpperCase()}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
 
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="bg-muted">
-                        <th className="border p-2">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost">Skala</Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem onClick={() => setSortBy("skalaAsc")}>
-                                A-Z
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setSortBy("skalaDesc")}>
-                                Z-A
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => setSortBy("default")}>
-                                Domyślnie
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </th>
-                        {visibleCols.includes("WS") && (
-                          <th className="border p-2">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost">WS</Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => setSortBy("WSAsc")}>
-                                  Rosnąco
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setSortBy("WSDesc")}>
-                                  Malejąco
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </th>
-                        )}
-                        {visibleCols.includes("K") && (
-                          <th className="border p-2">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost">K</Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => setSortBy("KAsc")}>
-                                  Rosnąco
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setSortBy("KDesc")}>
-                                  Malejąco
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </th>
-                        )}
-                        {visibleCols.includes("T") && (
-                          <th className="border p-2">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost">T</Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => setSortBy("TAsc")}>
-                                  Rosnąco
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => setSortBy("TDesc")}>
-                                  Malejąco
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </th>
-                        )}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedKeys.map((k) => {
-                        if (!visibleRows[k]) return null;
-                        return (
-                          <tr key={k} className="hover:bg-muted/50">
-                            <td className="border p-2 text-sm">
-                              <div className="font-semibold">{k}</div>
-                              <div className="text-xs text-muted-foreground">
-                                {scaleLabels[k]?.pl ?? ""}
-                              </div>
-                            </td>
-                            {visibleCols.includes("WS") && (
-                              <td className="border p-2 text-center">
-                                {getScoreValue(k, "WS")}
-                              </td>
-                            )}
-                            {visibleCols.includes("K") && (
-                              <td className="border p-2 text-center">
-                                {getScoreValue(k, "K")}
-                              </td>
-                            )}
-                            {visibleCols.includes("T") && (
-                              <td className="border p-2 text-center">
-                                {getScoreValue(k, "T")}
-                              </td>
-                            )}
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                      <div>
+                        <p className="text-sm font-medium mb-2">Widoczne wiersze</p>
+                        <div className="max-h-40 overflow-auto pr-1 space-y-1">
+                          {allRows.map((r) => (
+                            <div key={r} className="flex items-center gap-2">
+                              <Checkbox
+                                id={`row-${r}`}
+                                checked={w.visibleRows.includes(r)}
+                                onCheckedChange={(val) =>
+                                  updateWindowFilter(w.id, {
+                                    visibleRows: val
+                                      ? [...w.visibleRows, r]
+                                      : w.visibleRows.filter((i) => i !== r),
+                                  })
+                                }
+                              />
+                              <label htmlFor={`row-${r}`} className="text-sm truncate">
+                                {r}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            }
+            onClose={() => handleCloseWindow(w.id)}
+          >
+            <GroupDetailsTable
+              rows={scaleHierarchy[w.group as keyof typeof scaleHierarchy]}
+              scores={scores}
+              groupName={w.group}
+              visibleColumns={w.visibleColumns}
+              visibleRows={w.visibleRows}
+            />
+          </FloatingWindow>
+        )
+      })}
     </section>
-  );
+  )
 }

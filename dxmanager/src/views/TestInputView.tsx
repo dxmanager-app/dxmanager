@@ -1,12 +1,15 @@
+// app/dxmanager/src/views/TestInputView.tsx
 import { useParams } from "react-router-dom"
-import Mmpi2InputView from "@/views/mmpi2/Mmpi2InputView"
+import { testRegistry } from "./TestRegistry"
 
 export default function TestInputView() {
-  const { testId } = useParams()
+  const { testId = "mmpi2" } = useParams()
 
-  if (testId === "mmpi2") {
-    return <Mmpi2InputView />
+  const Component = testRegistry[testId]?.input
+
+  if (!Component) {
+    return <p className="p-4 text-center">Nieznany test: {testId}</p>
   }
 
-  return <div>Nieznany test: {testId}</div>
+  return <Component />
 }

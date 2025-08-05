@@ -21,10 +21,9 @@
       "csp": null
     }
   },
-"bundle": {
-  "active": true,
-  "targets": ["app"],
-  "icon": ["icons/icon.ico"]
-}
-
+  "bundle": {
+    "active": true,
+    "targets": ["app"],
+    "icon": ["icons/icon.ico"]
+  }
 }
