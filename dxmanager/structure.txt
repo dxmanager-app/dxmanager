@@ -1,0 +1,139 @@
+.
+├── components.json
+├── config.toml
+├── index.html
+├── jsconfig.json
+├── package.json
+├── package-lock.json
+├── postcss.config.js
+├── PROJECT_WORKFLOW.md
+├── public
+│   └── sounds
+│       ├── beep-01a-original.wav
+│       ├── beep-01a.wav
+│       ├── beep-02-original.wav
+│       └── beep-02.wav
+├── README.md
+├── scripts
+│   └── save-work.sh
+├── src
+│   ├── App.tsx
+│   ├── components
+│   │   ├── AppShell.tsx
+│   │   ├── MainMenuBar.tsx
+│   │   ├── MainSidebar.tsx
+│   │   ├── mmpi2
+│   │   │   ├── AnswerMatrix.tsx
+│   │   │   ├── GenderToggle.tsx
+│   │   │   ├── GroupDetailsTable.tsx
+│   │   │   ├── GroupFilterPanel.tsx
+│   │   │   ├── PatientInfoBar.tsx
+│   │   │   ├── PatientInfo.tsx
+│   │   │   ├── ScoreModeToggle.tsx
+│   │   │   └── ScoreSummary.tsx
+│   │   ├── patients
+│   │   │   ├── PatientForm.tsx
+│   │   │   └── PatientProfile.tsx
+│   │   ├── theme
+│   │   │   └── ThemeProvider.tsx
+│   │   ├── ThemeToggle.tsx
+│   │   └── ui
+│   │       ├── button.tsx
+│   │       ├── calendar.tsx
+│   │       ├── card.tsx
+│   │       ├── checkbox.tsx
+│   │       ├── data-table.tsx
+│   │       ├── date-picker.tsx
+│   │       ├── dialog.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── FloatingWindow.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── navigation-menu.tsx
+│   │       ├── popover.tsx
+│   │       ├── ProgressBar.tsx
+│   │       ├── progress.tsx
+│   │       ├── resizable.tsx
+│   │       ├── scroll-area.tsx
+│   │       ├── select.tsx
+│   │       ├── separator.tsx
+│   │       ├── toggle-group.tsx
+│   │       └── tooltip.tsx
+│   ├── index.css
+│   ├── lib
+│   │   ├── dataStore.ts
+│   │   ├── date
+│   │   │   └── calculateAge.ts
+│   │   ├── storage.ts
+│   │   └── utils.ts
+│   ├── logic
+│   │   ├── mmpi2
+│   │   │   ├── calculate.ts
+│   │   │   ├── calculators
+│   │   │   │   ├── k-corrected.ts
+│   │   │   │   ├── raw.ts
+│   │   │   │   ├── ten.ts
+│   │   │   │   ├── test-data.ts
+│   │   │   │   ├── trin.ts
+│   │   │   │   ├── utils.ts
+│   │   │   │   └── vrin.ts
+│   │   │   ├── compute.ts
+│   │   │   ├── criteria
+│   │   │   │   ├── k-corrections.ts
+│   │   │   │   ├── main-scales.ts
+│   │   │   │   ├── ten-scale.ts
+│   │   │   │   ├── trin-scale.ts
+│   │   │   │   └── vrin-scale.ts
+│   │   │   ├── scale-hierarchy.ts
+│   │   │   ├── scaleLabels.ts
+│   │   │   ├── types.ts
+│   │   │   └── utils.ts
+│   │   ├── utils
+│   │   │   └── generateTestId.ts
+│   │   └── waisr
+│   │       ├── aggregate.ts
+│   │       ├── calculate.ts
+│   │       ├── index.ts
+│   │       ├── norms
+│   │       │   ├── 16-17.ts
+│   │       │   ├── 18-19.ts
+│   │       │   ├── 20-24.ts
+│   │       │   ├── 25-34.ts
+│   │       │   ├── 35-44.ts
+│   │       │   ├── 45-54.ts
+│   │       │   ├── 55-64.ts
+│   │       │   ├── 65-69.ts
+│   │       │   ├── 70-74.ts
+│   │       │   ├── 75-79.ts
+│   │       │   ├── 80+.ts
+│   │       │   └── index.ts
+│   │       └── types.ts
+│   ├── main.tsx
+│   ├── types
+│   │   ├── results.ts
+│   │   └── tauri.d.ts
+│   └── views
+│       ├── Home.tsx
+│       ├── mmpi2
+│       │   ├── Mmpi2InputView.tsx
+│       │   └── Mmpi2Results.tsx
+│       ├── patients
+│       │   └── PatientsView.tsx
+│       ├── TestInputView.tsx
+│       ├── TestIntro.tsx
+│       ├── TestRegistry.tsx
+│       ├── TestResultsList.tsx
+│       ├── TestResultView.tsx
+│       └── waisr
+│           ├── WaisrInputView.tsx
+│           ├── WaisrIntroView.tsx
+│           └── WaisrResults.tsx
+├── structure.txt
+├── tailwind.config.js
+├── tree.txt
+├── tsconfig.json
+├── tsconfig.node.json
+├── vite.config.ts
+└── vite-env.d.ts
+
+24 directories, 113 files

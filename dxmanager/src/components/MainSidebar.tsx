@@ -1,4 +1,3 @@
-// app/dxmanager/src/components/MainSidebar.tsx
 import React, { useEffect, useRef, useState } from "react"
 import {
   ClipboardEdit,
@@ -28,7 +27,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-// 🔹 forwardRef dla Link jako child
 const SidebarLink = React.forwardRef<HTMLAnchorElement, React.ComponentProps<typeof Link>>(
   ({ children, ...props }, ref) => (
     <Link ref={ref} {...props}>
@@ -38,7 +36,6 @@ const SidebarLink = React.forwardRef<HTMLAnchorElement, React.ComponentProps<typ
 )
 SidebarLink.displayName = "SidebarLink"
 
-// 🔹 forwardRef dla Button jako child
 const SidebarButton = React.forwardRef<HTMLButtonElement, React.ComponentProps<typeof Button>>(
   ({ children, ...props }, ref) => (
     <Button ref={ref} {...props}>
@@ -83,7 +80,6 @@ export default function MainSidebar() {
           ? "dark"
           : "light"
         : value
-
     document.documentElement.classList.remove("light", "dark")
     document.documentElement.classList.add(resolved)
     localStorage.setItem("theme", value)
@@ -102,7 +98,8 @@ export default function MainSidebar() {
       label: "Nowe badanie",
       submenu: [
         { to: "/tests/mmpi2", label: "MMPI-2" },
-        { to: "/tests/waisr", label: "WAIS-R(PL)" }, // 🔹 dodany WAIS-R
+        // WAIS-R prowadzi do ekranu powitalnego (kreator)
+        { to: "/tests/waisr", label: "WAIS-R(PL)" },
       ],
     },
     {
@@ -198,23 +195,13 @@ export default function MainSidebar() {
             <DropdownMenuContent side="right">
               <DropdownMenuSub>
                 <DropdownMenuSubTrigger>
-                  {theme === "light" ? (
-                    <Sun className="mr-2 h-4 w-4" />
-                  ) : (
-                    <Moon className="mr-2 h-4 w-4" />
-                  )}
+                  {theme === "light" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
                   Tryb motywu
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={() => changeTheme("light")}>
-                    Jasny
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => changeTheme("dark")}>
-                    Ciemny
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => changeTheme("system")}>
-                    Systemowy
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeTheme("light")}>Jasny</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeTheme("dark")}>Ciemny</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => changeTheme("system")}>Systemowy</DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuSub>
             </DropdownMenuContent>
