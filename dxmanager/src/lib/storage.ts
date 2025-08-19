@@ -1,3 +1,23 @@
+// app/dxmanager/src/lib/storage.ts
+
+export function getFromStorage<T = unknown>(key: string, fallback: T): T {
+  try {
+    const json = localStorage.getItem(key)
+    return json ? (JSON.parse(json) as T) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+export function setToStorage(key: string, value: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    // błąd zapisu – ignorujemy
+  }
+}
+
+// Poniżej zawartość oryginalnego pliku storage.ts przeniesiona z wcześniejszej wersji:
 import { v4 as uuid } from "uuid"
 
 export interface SavedResult {
@@ -69,7 +89,6 @@ export async function saveResult(
 ): Promise<string> {
   const results = await getResults()
 
-  // sprawdzamy, czy już istnieje identyczny wynik
   const existing = results.find(
     (x) =>
       x.testId === r.testId &&

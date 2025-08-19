@@ -1,3 +1,4 @@
+// app/dxmanager/src/App.tsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import MainSidebar from "@/components/MainSidebar"
 import HomePage from "@/views/Home"
@@ -7,8 +8,7 @@ import TestIntro from "@/views/TestIntro"
 import TestInputView from "@/views/TestInputView"
 import TestResultView from "@/views/TestResultView"
 
-// WAIS-R (dedykowane widoki)
-import WaisrIntroView from "@/views/waisr/WaisrIntroView"
+// WAIS-R — bez kreatora; Input/Edit używają tego samego widoku
 import WaisrInputView from "@/views/waisr/WaisrInputView"
 import WaisrResults from "@/views/waisr/WaisrResults"
 
@@ -22,12 +22,13 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/results" element={<TestResultsList />} />
 
-            {/* Dedykowane trasy dla WAIS-R (przed parametrycznymi) */}
-            <Route path="/tests/waisr" element={<WaisrIntroView />} />
+            {/* WAIS-R (bez kreatora) */}
+            <Route path="/tests/waisr" element={<WaisrInputView />} />
             <Route path="/tests/waisr/input" element={<WaisrInputView />} />
+            <Route path="/tests/waisr/edit" element={<WaisrInputView />} />
             <Route path="/tests/waisr/results" element={<WaisrResults />} />
 
-            {/* Dynamiczne ścieżki dla pozostałych testów */}
+            {/* Pozostałe testy (dynamicznie) */}
             <Route path="/tests/:testId" element={<TestIntro />} />
             <Route path="/tests/:testId/input" element={<TestInputView />} />
             <Route path="/tests/:testId/results" element={<TestResultView />} />
