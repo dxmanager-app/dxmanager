@@ -1,6 +1,6 @@
 // app/dxmanager/src/views/waisr/WaisrTable.tsx
 import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/data-table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ALL_SUBTESTS } from "@/logic/waisr/calculate"
 import type { CalculatedResult } from "@/logic/waisr/types"
 

@@ -1,78 +1,57 @@
 // app/dxmanager/src/views/waisr/PatientSection.tsx
-import { useState, useEffect } from "react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
-import { calculateAge } from "@/lib/date/calculateAge"
-import type { Gender } from "@/logic/waisr/types"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Gender } from "@/logic/waisr/types"
 
-type PatientSectionProps = {
-  data: any
-  onChange: (data: any) => void
+export interface PatientSectionProps {
+  gender: Gender
+  birthDate: string
+  examDate: string
+  age: number
+  onGenderChange: (value: Gender) => void
+  onBirthDateChange: (value: string) => void
+  onExamDateChange: (value: string) => void
 }
 
-const FEMALE: Gender = "K"
-const MALE: Gender = "M"
-
-export default function PatientSection({ data, onChange }: PatientSectionProps) {
-  const [localData, setLocalData] = useState(data)
-
-  useEffect(() => {
-    setLocalData(data)
-  }, [data])
-
-  const handleChange = (field: string, value: string) => {
-    const updated = {
-      ...localData,
-      [field]: value,
-    }
-
-    if (updated.birthDate && updated.examDate) {
-      updated.age = String(calculateAge(updated.birthDate, updated.examDate))
-    }
-
-    setLocalData(updated)
-    onChange(updated)
-  }
-
+export function PatientSection({
+  gender,
+  birthDate,
+  examDate,
+  age,
+  onGenderChange,
+  onBirthDateChange,
+  onExamDateChange,
+}: PatientSectionProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Dane pacjenta</CardTitle>
-      </CardHeader>
-      <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div>
-          <Label>Imię</Label>
-          <Input value={localData?.firstName ?? ""} onChange={(e) => handleChange("firstName", e.target.value)} />
-        </div>
-        <div>
-          <Label>Nazwisko</Label>
-          <Input value={localData?.lastName ?? ""} onChange={(e) => handleChange("lastName", e.target.value)} />
-        </div>
-        <div>
-          <Label>Płeć</Label>
-          <Select value={localData?.gender ?? ""} onValueChange={(value) => handleChange("gender", value)}>
-            <SelectTrigger><SelectValue placeholder="Wybierz" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value={FEMALE}>Kobieta</SelectItem>
-              <SelectItem value={MALE}>Mężczyzna</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label>Data urodzenia</Label>
-          <Input type="date" value={localData?.birthDate ?? ""} onChange={(e) => handleChange("birthDate", e.target.value)} />
-        </div>
-        <div>
-          <Label>Data badania</Label>
-          <Input type="date" value={localData?.examDate ?? ""} onChange={(e) => handleChange("examDate", e.target.value)} />
-        </div>
-        <div>
-          <Label>Wiek (obliczony)</Label>
-          <Input value={localData?.age ?? ""} disabled />
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid grid-cols-2 gap-4">
+      <div>
+        <Label>Płeć</Label>
+        <Select value={gender} onValueChange={(value) => onGenderChange(value as Gender)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Wybierz" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="M">Mężczyzna</SelectItem>
+            <SelectItem value="K">Kobieta</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label>Data urodzenia</Label>
+        <Input type="date" value={birthDate} onChange={(e) => onBirthDateChange(e.target.value)} />
+      </div>
+
+      <div>
+        <Label>Data badania</Label>
+        <Input type="date" value={examDate} onChange={(e) => onExamDateChange(e.target.value)} />
+      </div>
+
+      <div>
+        <Label>Wiek (lata)</Label>
+        <Input type="number" value={age.toString()} readOnly />
+      </div>
+    </div>
   )
 }

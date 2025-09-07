@@ -1,13 +1,13 @@
 // app/dxmanager/src/components/waisr/ScoresTable.tsx
 import {
   Table,
-  TableBody,
-  TableCell,
-  TableHead,
   TableHeader,
+  TableBody,
   TableRow,
+  TableHead,
+  TableCell,
 } from "@/components/ui/table"
-import { ALL_SUBTESTS, SUBTESTS_BEZSLOWNE, SUBTESTS_SLOWNE } from "@/logic/waisr/calculate"
+import { ALL_SUBTESTS } from "@/logic/waisr/calculate"
 import type { CalculatedResult } from "@/logic/waisr/types"
 
 export function ScoresTable({ result }: { result: CalculatedResult }) {
@@ -15,7 +15,7 @@ export function ScoresTable({ result }: { result: CalculatedResult }) {
     <Table className="mt-6">
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[300px]">Podtest</TableHead>
+          <TableHead>Podtest</TableHead>
           <TableHead>WS</TableHead>
           <TableHead>WP</TableHead>
         </TableRow>
@@ -31,23 +31,9 @@ export function ScoresTable({ result }: { result: CalculatedResult }) {
             </TableRow>
           )
         })}
-
-        <TableRow>
-          <TableCell className="font-medium">Suma słowna</TableCell>
-          <TableCell />
-          <TableCell>{result.sums.slowna ?? ""}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className="font-medium">Suma bezsłowna</TableCell>
-          <TableCell />
-          <TableCell>{result.sums.bezslowna ?? ""}</TableCell>
-        </TableRow>
-        <TableRow>
-          <TableCell className="font-medium">Suma pełna</TableCell>
-          <TableCell />
-          <TableCell>{result.sums.pelna ?? ""}</TableCell>
-        </TableRow>
       </TableBody>
     </Table>
   )
 }
+
+export default ScoresTable

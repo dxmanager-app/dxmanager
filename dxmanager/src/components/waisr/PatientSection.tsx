@@ -1,62 +1,65 @@
-// app/dxmanager/src/components/waisr/PatientSection.tsx
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+// src/views/waisr/PatientSection.tsx
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
 import { Gender } from "@/logic/waisr/types"
+import { calculateAge } from "@/lib/date/calculateAge"
+import { useEffect } from "react"
 
 interface PatientSectionProps {
-  firstName: string
-  lastName: string
-  pesel: string
   gender: Gender
   birthDate: string
-  onChange: (field: keyof PatientSectionProps, value: string) => void
+  examDate: string
+  age: number
+  setGender: (value: Gender) => void
+  setBirthDate: (value: string) => void
+  setExamDate: (value: string) => void
+  setAge: (value: number) => void
 }
 
 export function PatientSection({
-  firstName,
-  lastName,
-  pesel,
   gender,
+  setGender,
   birthDate,
-  onChange,
+  setBirthDate,
+  examDate,
+  setExamDate,
+  age,
+  setAge,
 }: PatientSectionProps) {
+  useEffect(() => {
+    if (birthDate && examDate) {
+      const calculated = calculateAge(new Date(birthDate), new Date(examDate))
+      setAge(calculated.years)
+    }
+  }, [birthDate, examDate])
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Dane pacjenta</CardTitle>
-      </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-4">
-        <div>
-          <Label>Imię</Label>
-          <Input value={firstName} onChange={(e) => onChange("firstName", e.target.value)} />
-        </div>
-        <div>
-          <Label>Nazwisko</Label>
-          <Input value={lastName} onChange={(e) => onChange("lastName", e.target.value)} />
-        </div>
-        <div>
-          <Label>PESEL</Label>
-          <Input value={pesel} onChange={(e) => onChange("pesel", e.target.value)} />
-        </div>
-        <div>
-          <Label>Płeć</Label>
-          <Select value={gender} onValueChange={(value: Gender) => onChange("gender", value)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="M">Mężczyzna</SelectItem>
-              <SelectItem value="K">Kobieta</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label>Data urodzenia</Label>
-          <Input type="date" value={birthDate} onChange={(e) => onChange("birthDate", e.target.value)} />
-        </div>
-      </CardContent>
-    </Card>
+    <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-2">
+        <Label>Płeć</Label>
+<Select value={gender} onValueChange={(v: Gender) => setGender(v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Wybierz" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="K">Kobieta</SelectItem>
+            <SelectItem value="M">Mężczyzna</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="grid gap-2">
+        <Label>Data urodzenia</Label>
+        <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
+      </div>
+      <div className="grid gap-2">
+        <Label>Data badania</Label>
+        <Input type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} />
+      </div>
+      <div className="grid gap-2">
+        <Label>Wiek</Label>
+        <Input value={age.toString()} readOnly />
+      </div>
+    </div>
   )
 }
