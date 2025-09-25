@@ -1,6 +1,9 @@
-// app/dxmanager/src/logic/waisr/calculate.ts
 import { norms } from "./norms"
 import { aggregateRawScoresFromFullInput } from "./aggregate"
+import { getVerbalIQ, getPerformanceIQ, getFullScaleIQ } from "./norms/iq-tables"
+import { getConfidenceInterval } from "./norms/confidence-intervals"
+import { FACTOR_DEFINITIONS, calculateFactorSum, getFactorIQ, type FactorName } from "./norms/factor-analysis"
+import { getFactorConfidenceInterval } from "./norms/factor-confidence"
 import type {
   AgeGroupKey,
   CalculatedPerSubtest,
@@ -10,6 +13,7 @@ import type {
   RawScores,
   Subtest,
   WaisrMode,
+  ConfidenceInterval,
 } from "./types"
 
 /** Lokalne typy parametrów – pozwalają używać trybu basic lub full bez zmian w innych plikach. */
@@ -148,19 +152,53 @@ export function calculateWaisr(params: CalcParams): CalculatedResult {
 
   const ageGroup = resolveAgeGroupWithFallback(age)
 
+  // Obliczenia podstawowe: WS → WP
   const bySubtest: Record<Subtest, CalculatedPerSubtest> = {} as any
   for (const s of ALL_SUBTESTS) {
     const ws = (raw[s] ?? null) as number | null
     const wp = getWpFromNorms(ageGroup, s, ws)
-    bySubtest[s] = { ws, wp }
+    
+    // Oblicz przedziały ufności dla WP jeśli są dostępne
+    const confidence = wp != null ? {
+      95: getConfidenceInterval(wp, ageGroup, 'subtest', s, 95),
+      85: getConfidenceInterval(wp, ageGroup, 'subtest', s, 85)
+    } : undefined
+
+    bySubtest[s] = { ws, wp, confidence }
   }
 
+  // Sumy WP
   const sumSlowna = sumWp(SUBTESTS_SLOWNE.map((s) => bySubtest[s]?.wp))
   const sumBezslowna = sumWp(SUBTESTS_BEZSLOWNE.map((s) => bySubtest[s]?.wp))
   const sumPelna =
     sumSlowna != null && sumBezslowna != null
       ? sumSlowna + sumBezslowna
       : sumWp([...SUBTESTS_SLOWNE, ...SUBTESTS_BEZSLOWNE].map((s) => bySubtest[s]?.wp))
+
+  // Obliczenia IQ
+  const iq = {
+    slowne: sumSlowna != null ? getVerbalIQ(sumSlowna) : null,
+    bezslowne: sumBezslowna != null ? getPerformanceIQ(sumBezslowna) : null,
+    pelne: sumPelna != null ? getFullScaleIQ(sumPelna) : null,
+  }
+
+  // Przedziały ufności dla IQ
+  const confidenceIntervals = {
+    iq: {
+      slowne: iq.slowne != null ? {
+        95: getConfidenceInterval(iq.slowne, ageGroup, 'verbal', undefined, 95),
+        85: getConfidenceInterval(iq.slowne, ageGroup, 'verbal', undefined, 85)
+      } : undefined,
+      bezslowne: iq.bezslowne != null ? {
+        95: getConfidenceInterval(iq.bezslowne, ageGroup, 'performance', undefined, 95),
+        85: getConfidenceInterval(iq.bezslowne, ageGroup, 'performance', undefined, 85)
+      } : undefined,
+      pelne: iq.pelne != null ? {
+        95: getConfidenceInterval(iq.pelne, ageGroup, 'fullscale', undefined, 95),
+        85: getConfidenceInterval(iq.pelne, ageGroup, 'fullscale', undefined, 85)
+      } : undefined
+    }
+  }
 
   return {
     mode,
@@ -173,9 +211,39 @@ export function calculateWaisr(params: CalcParams): CalculatedResult {
       bezslowna: sumBezslowna,
       pelna: sumPelna,
     },
-    // IQ i P95% dodamy po wprowadzeniu odpow. tabel
-    iq: { slowne: null, bezslowne: null, pelne: null },
-    factors: {}, // do uzupełnienia gdy zdefiniujemy mapy czynnikowe
+    iq,
+    confidenceIntervals,
+    // Analiza czynnikowa z przedziałami ufności
+    factors: (() => {
+      const result: Record<string, { 
+        sum: number | null; 
+        iq?: number | null;
+        confidence?: {
+          95?: ConfidenceInterval
+          85?: ConfidenceInterval
+        }
+      }> = {}
+      
+      for (const [factorName, subtests] of Object.entries(FACTOR_DEFINITIONS)) {
+        const wpScores: Record<Subtest, number | null> = {} as any
+        for (const s of ALL_SUBTESTS) {
+          wpScores[s] = bySubtest[s]?.wp ?? null
+        }
+        
+        const sum = calculateFactorSum(factorName as FactorName, wpScores)
+        const iq = sum != null ? getFactorIQ(factorName as FactorName, sum) : null
+        
+        // Przedziały ufności dla IQ czynnika
+        const confidence = iq != null ? {
+          95: getFactorConfidenceInterval(iq, factorName as FactorName, ageGroup, 95),
+          85: getFactorConfidenceInterval(iq, factorName as FactorName, ageGroup, 85)
+        } : undefined
+        
+        result[factorName] = { sum, iq, confidence }
+      }
+      
+      return result
+    })(),
   }
 }
 

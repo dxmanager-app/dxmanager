@@ -45,17 +45,30 @@ export type NormsIndex = Record<AgeGroupKey, NormsForGroup>
 /** WS per podtest; w UI mogą być chwilowo puste → dopuszczamy null */
 export type RawScores = Partial<Record<Subtest, number | null>>
 
-/** (Tryb „full”) pełna karta odpowiedzi: klucz pozycji → wartość punktowa 0/1/… */
+/** (Tryb „full") pełna karta odpowiedzi: klucz pozycji → wartość punktowa 0/1/… */
 export type FullInputAnswers = Record<string, number | null | undefined>
 
-/** (Tryb „full”) mapowanie podtest → lista kluczy pozycji w karcie odpowiedzi */
+/** (Tryb „full") mapowanie podtest → lista kluczy pozycji w karcie odpowiedzi */
 export type SubtestItemMap = Record<Subtest, string[]>
+
+/** Poziom ufności dla przedziałów */
+export type ConfidenceLevel = 85 | 95
+
+/** Przedział ufności z dolną i górną granicą */
+export type ConfidenceInterval = {
+  lower: number
+  upper: number
+  margin: number
+}
 
 /** Wyniki cząstkowe per podtest po przeliczeniu */
 export type CalculatedPerSubtest = {
   ws: number | null
   wp: number | null
-  p95?: number | null
+  confidence?: {
+    95?: ConfidenceInterval
+    85?: ConfidenceInterval
+  }
 }
 
 /** Wynik końcowy kalkulacji WAIS-R */
@@ -75,5 +88,28 @@ export type CalculatedResult = {
     bezslowne?: number | null
     pelne?: number | null
   }
-  factors?: Record<string, { sum: number | null; iq?: number | null }>
+  confidenceIntervals?: {
+    iq?: {
+      slowne?: {
+        95?: ConfidenceInterval
+        85?: ConfidenceInterval
+      }
+      bezslowne?: {
+        95?: ConfidenceInterval
+        85?: ConfidenceInterval
+      }
+      pelne?: {
+        95?: ConfidenceInterval
+        85?: ConfidenceInterval
+      }
+    }
+  }
+  factors?: Record<string, { 
+    sum: number | null; 
+    iq?: number | null;
+    confidence?: {
+      95?: ConfidenceInterval
+      85?: ConfidenceInterval
+    }
+  }>
 }

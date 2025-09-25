@@ -8,9 +8,8 @@ import TestIntro from "@/views/TestIntro"
 import TestInputView from "@/views/TestInputView"
 import TestResultView from "@/views/TestResultView"
 
-// WAIS-R — bez kreatora; Input/Edit używają tego samego widoku
-import WaisrInputView from "@/views/waisr/WaisrInputView"
-import WaisrResults from "@/views/waisr/WaisrResults"
+// WAIS-R — komponenty
+import WaisrMainView from "@/views/waisr/WaisrMainView"  // ← Główny komponent
 
 export default function App() {
   return (
@@ -22,11 +21,9 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/results" element={<TestResultsList />} />
 
-            {/* WAIS-R (bez kreatora) */}
-            <Route path="/tests/waisr" element={<WaisrInputView />} />
-            <Route path="/tests/waisr/input" element={<WaisrInputView />} />
-            <Route path="/tests/waisr/edit" element={<WaisrInputView />} />
-            <Route path="/tests/waisr/results" element={<WaisrResults />} />
+            {/* WAIS-R - jeden route obsługuje wszystko */}
+            <Route path="/tests/waisr" element={<WaisrMainView />} />
+            <Route path="/tests/waisr/*" element={<WaisrMainView />} />
 
             {/* Pozostałe testy (dynamicznie) */}
             <Route path="/tests/:testId" element={<TestIntro />} />

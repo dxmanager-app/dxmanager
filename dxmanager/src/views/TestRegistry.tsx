@@ -1,7 +1,7 @@
 // app/dxmanager/src/views/TestRegistry.tsx
 import Mmpi2Results from "@/views/mmpi2/Mmpi2Results"
 import Mmpi2InputView from "@/views/mmpi2/Mmpi2InputView"
-import WaisrResults from "@/views/waisr/WaisrResults"
+import WaisrResults from "@/views/waisr/WaisrResultsView"
 import WaisrInputView from "@/views/waisr/WaisrInputView"
 
 type TestConfig = {

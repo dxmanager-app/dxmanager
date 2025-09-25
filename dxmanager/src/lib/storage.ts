@@ -33,17 +33,17 @@ const FILE_NAME = "results.json"
 
 let readTextFile: ((path: string) => Promise<string>) | undefined
 let writeTextFile: ((path: string, contents: string) => Promise<void>) | undefined
-let createDir: ((dir: string, opts: { recursive: boolean }) => Promise<void>) | undefined
+let mkdir: ((dir: string, options?: { recursive?: boolean }) => Promise<void>) | undefined
 let exists: ((path: string) => Promise<boolean>) | undefined
 let appDataDir: (() => Promise<string>) | undefined
 
 async function loadTauriModules() {
   if (!readTextFile && typeof window !== "undefined" && "__TAURI__" in window) {
-    const fs = await import(/* @vite-ignore */ "@tauri-apps/api/fs")
+    const fs = await import(/* @vite-ignore */ "@tauri-apps/plugin-fs")
     const path = await import(/* @vite-ignore */ "@tauri-apps/api/path")
     readTextFile = fs.readTextFile
     writeTextFile = fs.writeTextFile
-    createDir = fs.createDir
+    mkdir = fs.mkdir
     exists = fs.exists
     appDataDir = path.appDataDir
   }
@@ -51,9 +51,9 @@ async function loadTauriModules() {
 
 async function getResultsPath(): Promise<string> {
   await loadTauriModules()
-  if (!appDataDir || !exists || !createDir) throw new Error("Tauri API not available")
+  if (!appDataDir || !exists || !mkdir) throw new Error("Tauri API not available")
   const dir = await appDataDir()
-  if (!(await exists(dir))) await createDir(dir, { recursive: true })
+  if (!(await exists(dir))) await mkdir(dir, { recursive: true })
   return dir + FILE_NAME
 }
 

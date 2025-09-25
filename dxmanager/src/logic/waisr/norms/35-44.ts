@@ -1,5 +1,249 @@
-// app/dxmanager/src/logic/waisr/norms/35-44.ts
+// src/logic/waisr/norms/35-44.ts
+// Normy na podstawie tabeli WAIS-R(PL) dla grupy wieku 35-44 lat
 import type { NormsForGroup } from "../types"
 
-const data: NormsForGroup = {} as any
+const data: NormsForGroup = {
+  "Wiadomości": [
+    { min: 29, max: 29, wp: 19 },
+    { min: 27, max: 28, wp: 18 },
+    { min: 25, max: 26, wp: 17 },
+    { min: 24, max: 24, wp: 16 },
+    { min: 23, max: 23, wp: 15 },
+    { min: 21, max: 22, wp: 14 },
+    { min: 19, max: 20, wp: 13 },
+    { min: 17, max: 18, wp: 12 },
+    { min: 15, max: 16, wp: 11 },
+    { min: 13, max: 14, wp: 10 },
+    { min: 10, max: 12, wp: 9 },
+    { min: 9, max: 9, wp: 8 },
+    { min: 7, max: 8, wp: 7 },
+    { min: 5, max: 6, wp: 6 },
+    { min: 4, max: 4, wp: 5 },
+    { min: 3, max: 3, wp: 4 },
+    // WP=3: "-" w tabeli = brak danych
+    { min: 2, max: 2, wp: 2 },
+    { min: 0, max: 1, wp: 1 }
+  ],
+
+  "Powtarzanie Cyfr": [
+    { min: 21, max: 28, wp: 19 },
+    { min: 20, max: 20, wp: 18 },
+    { min: 18, max: 19, wp: 17 },
+    { min: 17, max: 17, wp: 16 },
+    { min: 16, max: 16, wp: 15 },
+    { min: 15, max: 15, wp: 14 },
+    { min: 13, max: 14, wp: 13 },
+    { min: 12, max: 12, wp: 12 },
+    { min: 11, max: 11, wp: 11 },
+    { min: 10, max: 10, wp: 10 },
+    { min: 9, max: 9, wp: 9 },
+    { min: 8, max: 8, wp: 8 },
+    // WP=7: "-" w tabeli = brak danych
+    { min: 7, max: 7, wp: 6 },
+    { min: 6, max: 6, wp: 5 },
+    { min: 5, max: 5, wp: 4 },
+    { min: 4, max: 4, wp: 3 },
+    { min: 2, max: 3, wp: 2 },
+    { min: 0, max: 1, wp: 1 }
+  ],
+
+  "Słownik": [
+    { min: 64, max: 70, wp: 19 },
+    { min: 60, max: 63, wp: 18 },
+    { min: 58, max: 59, wp: 17 },
+    { min: 54, max: 57, wp: 16 },
+    { min: 52, max: 53, wp: 15 },
+    { min: 47, max: 51, wp: 14 },
+    { min: 45, max: 46, wp: 13 },
+    { min: 40, max: 44, wp: 12 },
+    { min: 37, max: 39, wp: 11 },
+    { min: 33, max: 36, wp: 10 },
+    { min: 27, max: 32, wp: 9 },
+    { min: 19, max: 26, wp: 8 },
+    { min: 14, max: 18, wp: 7 },
+    { min: 10, max: 13, wp: 6 },
+    { min: 7, max: 9, wp: 5 },
+    { min: 6, max: 6, wp: 4 },
+    { min: 4, max: 5, wp: 3 },
+    { min: 1, max: 3, wp: 2 },
+    { min: 0, max: 0, wp: 1 }
+  ],
+
+  "Arytmetyka": [
+    { min: 79, max: 84, wp: 19 },
+    { min: 74, max: 78, wp: 18 },
+    { min: 73, max: 73, wp: 17 },
+    { min: 67, max: 72, wp: 16 },
+    { min: 63, max: 66, wp: 15 },
+    { min: 53, max: 62, wp: 14 },
+    { min: 47, max: 52, wp: 13 },
+    { min: 40, max: 46, wp: 12 },
+    { min: 32, max: 39, wp: 11 },
+    { min: 26, max: 31, wp: 10 },
+    { min: 22, max: 25, wp: 9 },
+    { min: 19, max: 21, wp: 8 },
+    { min: 16, max: 18, wp: 7 },
+    { min: 14, max: 15, wp: 6 },
+    { min: 10, max: 13, wp: 5 },
+    { min: 7, max: 9, wp: 4 },
+    { min: 4, max: 6, wp: 3 },
+    { min: 2, max: 3, wp: 2 },
+    { min: 0, max: 1, wp: 1 }
+  ],
+
+  "Rozumienie": [
+    { min: 31, max: 32, wp: 19 },
+    { min: 30, max: 30, wp: 18 },
+    { min: 28, max: 29, wp: 17 },
+    { min: 26, max: 27, wp: 16 },
+    { min: 25, max: 25, wp: 15 },
+    { min: 24, max: 24, wp: 14 },
+    { min: 22, max: 23, wp: 13 },
+    { min: 21, max: 21, wp: 12 },
+    { min: 19, max: 20, wp: 11 },
+    { min: 17, max: 18, wp: 10 },
+    { min: 16, max: 16, wp: 9 },
+    { min: 13, max: 15, wp: 8 },
+    { min: 10, max: 12, wp: 7 },
+    { min: 9, max: 9, wp: 6 },
+    { min: 7, max: 8, wp: 5 },
+    { min: 6, max: 6, wp: 4 },
+    { min: 4, max: 5, wp: 3 },
+    { min: 1, max: 3, wp: 2 },
+    { min: 0, max: 0, wp: 1 }
+  ],
+
+  "Podobieństwa": [
+    { min: 28, max: 28, wp: 19 },
+    { min: 27, max: 27, wp: 18 },
+    { min: 26, max: 26, wp: 17 },
+    { min: 25, max: 25, wp: 16 },
+    { min: 24, max: 24, wp: 15 },
+    { min: 22, max: 23, wp: 14 },
+    { min: 20, max: 21, wp: 13 },
+    { min: 19, max: 19, wp: 12 },
+    { min: 17, max: 18, wp: 11 },
+    { min: 15, max: 16, wp: 10 },
+    { min: 13, max: 14, wp: 9 },
+    { min: 10, max: 12, wp: 8 },
+    { min: 7, max: 9, wp: 7 },
+    { min: 5, max: 6, wp: 6 },
+    { min: 4, max: 4, wp: 5 },
+    { min: 2, max: 3, wp: 4 },
+    { min: 1, max: 1, wp: 3 },
+    // WP=2: "-" w tabeli = brak danych
+    { min: 0, max: 0, wp: 1 }
+  ],
+
+  "Braki w Obrazkach": [
+    { min: 36, max: 36, wp: 19 },
+    { min: 35, max: 35, wp: 18 },
+    { min: 33, max: 34, wp: 17 },
+    { min: 31, max: 32, wp: 16 },
+    { min: 30, max: 30, wp: 15 },
+    { min: 28, max: 29, wp: 14 },
+    { min: 26, max: 27, wp: 13 },
+    { min: 24, max: 25, wp: 12 },
+    { min: 22, max: 23, wp: 11 },
+    { min: 20, max: 21, wp: 10 },
+    { min: 18, max: 19, wp: 9 },
+    { min: 16, max: 17, wp: 8 },
+    { min: 14, max: 15, wp: 7 },
+    { min: 9, max: 13, wp: 6 },
+    { min: 7, max: 8, wp: 5 },
+    { min: 5, max: 6, wp: 4 },
+    { min: 4, max: 4, wp: 3 },
+    { min: 3, max: 3, wp: 2 },
+    { min: 0, max: 2, wp: 1 }
+  ],
+
+  "Porządkowanie Obrazków": [
+    { min: 24, max: 30, wp: 19 },
+    { min: 23, max: 23, wp: 18 },
+    { min: 22, max: 22, wp: 17 },
+    { min: 21, max: 21, wp: 16 },
+    { min: 18, max: 20, wp: 15 },
+    { min: 17, max: 17, wp: 14 },
+    { min: 15, max: 16, wp: 13 },
+    { min: 12, max: 14, wp: 12 },
+    { min: 10, max: 11, wp: 11 },
+    { min: 9, max: 9, wp: 10 },
+    { min: 7, max: 8, wp: 9 },
+    { min: 6, max: 6, wp: 8 },
+    { min: 4, max: 5, wp: 7 },
+    { min: 3, max: 3, wp: 6 },
+    { min: 2, max: 2, wp: 5 },
+    // WP=4: "-" w tabeli = brak danych
+    { min: 1, max: 1, wp: 3 },
+    // WP=2: "-" w tabeli = brak danych
+    { min: 0, max: 0, wp: 1 }
+  ],
+
+  "Klocki": [
+    { min: 50, max: 54, wp: 19 },
+    { min: 47, max: 49, wp: 18 },
+    { min: 45, max: 46, wp: 17 },
+    { min: 43, max: 44, wp: 16 },
+    { min: 40, max: 42, wp: 15 },
+    { min: 37, max: 39, wp: 14 },
+    { min: 34, max: 36, wp: 13 },
+    { min: 31, max: 33, wp: 12 },
+    { min: 27, max: 30, wp: 11 },
+    { min: 23, max: 26, wp: 10 },
+    { min: 20, max: 22, wp: 9 },
+    { min: 17, max: 19, wp: 8 },
+    { min: 15, max: 16, wp: 7 },
+    { min: 12, max: 14, wp: 6 },
+    { min: 9, max: 11, wp: 5 },
+    { min: 7, max: 8, wp: 4 },
+    { min: 6, max: 6, wp: 3 },
+    { min: 4, max: 5, wp: 2 },
+    { min: 0, max: 3, wp: 1 }
+  ],
+
+  "Układanki": [
+    { min: 36, max: 41, wp: 19 },
+    { min: 35, max: 35, wp: 18 },
+    { min: 34, max: 34, wp: 17 },
+    { min: 33, max: 33, wp: 16 },
+    { min: 32, max: 32, wp: 15 },
+    // WP=14: "-" w tabeli = brak danych
+    { min: 31, max: 31, wp: 13 },
+    { min: 30, max: 30, wp: 12 },
+    { min: 29, max: 29, wp: 11 },
+    { min: 28, max: 28, wp: 10 },
+    { min: 25, max: 27, wp: 9 },
+    { min: 23, max: 24, wp: 8 },
+    { min: 19, max: 22, wp: 7 },
+    { min: 14, max: 18, wp: 6 },
+    { min: 11, max: 13, wp: 5 },
+    { min: 9, max: 10, wp: 4 },
+    { min: 8, max: 8, wp: 3 },
+    { min: 6, max: 7, wp: 2 },
+    { min: 0, max: 5, wp: 1 }
+  ],
+
+  "Symbole Cyfr": [
+    { min: 91, max: 93, wp: 19 },
+    { min: 86, max: 90, wp: 18 },
+    { min: 79, max: 85, wp: 17 },
+    { min: 71, max: 78, wp: 16 },
+    { min: 64, max: 70, wp: 15 },
+    { min: 60, max: 63, wp: 14 },
+    { min: 57, max: 59, wp: 13 },
+    { min: 52, max: 56, wp: 12 },
+    { min: 48, max: 51, wp: 11 },
+    { min: 43, max: 47, wp: 10 },
+    { min: 39, max: 42, wp: 9 },
+    { min: 35, max: 38, wp: 8 },
+    { min: 30, max: 34, wp: 7 },
+    { min: 28, max: 30, wp: 6 },
+    { min: 26, max: 27, wp: 5 },
+    { min: 24, max: 25, wp: 4 },
+    { min: 18, max: 23, wp: 3 },
+    { min: 15, max: 17, wp: 2 },
+    { min: 0, max: 14, wp: 1 }
+  ]
+}
+
 export default data
